@@ -1,69 +1,66 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@Slf4j
 public class UserController {
     private static int idCounter = 0;
     private final Map<Integer, User> users = new HashMap<>();
 
     @GetMapping("/users")
     public List<User> findAll() {
-        return new ArrayList<User>(users.values());
+        return new ArrayList<>(users.values());
     }
 
     @PostMapping(value = "/users")
-    public User create(@RequestBody User user) throws ValidationException {
-        if (user.getName()==null){
+    public User create(@RequestBody @Valid User user) {
+        if (user.getLogin().contains(" ")){
+            log.error("Login contains whitespace");
+            throw new ValidationException("Login contains whitespace");
+        }
+        if (Strings.isBlank(user.getName())) {
             user.setName(user.getLogin());
+            log.debug("Name is null or empty. Login is used as name");
         }
-        if (isValid(user)){
-            if (user.getId() == 0) {
-                user.setId(++idCounter);
-            }
-            users.put(user.getId(),user);
-        }else {
-            throw new ValidationException();
-        }
-        return users.get(user.getId());
+        int newId = ++idCounter;
+        user.setId(newId);
+        users.put(newId, user);
+        log.debug("User created");
+        return user;
     }
 
 
     @PutMapping(value = "/users")
-    public User update(@RequestBody User user) throws ValidationException {
-        if (!users.containsKey(user.getId())){
-            throw new ValidationException();
+    public User update(@RequestBody @Valid User user){
+        int id = user.getId();
+        if (user.getLogin().contains(" ")){
+            log.error("Login contains whitespace");
+            throw new ValidationException("Login contains whitespace");
         }
-        if (user.getName().isEmpty()){
+        if (!users.containsKey(id)) {
+            log.error("User with such id is not found");
+            throw new ValidationException("User with such id is not found");
+        }
+        if (Strings.isBlank(user.getName())) {
             user.setName(user.getLogin());
+            log.debug("Name is null or empty. Login is used as name");
         }
-        if (user.getId()==0){
-            user.setId(++idCounter);
-        }
-        if (isValid(user)){
-            users.remove(user.getId());
-            users.put(user.getId(),user);
-        }else {
-            throw new ValidationException();
-        }
+        users.put(id, user);
+        log.debug("User updated");
         return user;
     }
 
-    public static boolean isValid(User user){
-        return user.getEmail() != null &&
-                user.getEmail().contains("@") &&
-                user.getLogin() != null &&
-                !user.getLogin().contains(" ") &&
-                user.getBirthday().isBefore(LocalDate.now());
-    }
 //    электронная почта не может быть пустой и должна содержать символ @;
 //    логин не может быть пустым и содержать пробелы;
 //    имя для отображения может быть пустым — в таком случае будет использован логин;
