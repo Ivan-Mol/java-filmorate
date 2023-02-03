@@ -1,24 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor
 @Builder
 public class Film {
-    int id;
+    private Long id;
     @NotBlank(message = "Name is empty")
-    String name;
+    private String name;
     @Length(max = 200, message = "Description length is more than 200")
     @NotBlank(message = "Description is empty")
-    String description;
-    LocalDate releaseDate;
+    private String description;
+    private LocalDate releaseDate;
     @Min(value = 1, message = "Duration is incorrect")
-    int duration;
+    private int duration;
 }

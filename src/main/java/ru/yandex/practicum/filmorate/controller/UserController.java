@@ -14,50 +14,47 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@RequestMapping(value = "/users")
 public class UserController {
-    private static int idCounter = 0;
-    private final Map<Integer, User> users = new HashMap<>();
+    private static long idCounter = 0;
+    private final Map<Long, User> users = new HashMap<>();
 
-    @GetMapping("/users")
+    private static void validate(User user) {
+        if (user.getLogin().contains(" ")) {
+            log.error("Login contains whitespace");
+            throw new ValidationException("Login contains whitespace");
+        }
+        if (Strings.isBlank(user.getName())) {
+            user.setName(user.getLogin());
+            log.debug("Name is null or empty. Login is used as name");
+        }
+    }
+
+    @GetMapping
     public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping
     public User create(@RequestBody @Valid User user) {
-        if (user.getLogin().contains(" ")){
-            log.error("Login contains whitespace");
-            throw new ValidationException("Login contains whitespace");
-        }
-        if (Strings.isBlank(user.getName())) {
-            user.setName(user.getLogin());
-            log.debug("Name is null or empty. Login is used as name");
-        }
-        int newId = ++idCounter;
+        validate(user);
+        Long newId = ++idCounter;
         user.setId(newId);
         users.put(newId, user);
-        log.debug("User created");
+        log.debug("User created {}", user);
         return user;
     }
 
-
-    @PutMapping(value = "/users")
-    public User update(@RequestBody @Valid User user){
-        int id = user.getId();
-        if (user.getLogin().contains(" ")){
-            log.error("Login contains whitespace");
-            throw new ValidationException("Login contains whitespace");
-        }
+    @PutMapping
+    public User update(@RequestBody @Valid User user) {
+        Long id = user.getId();
+        validate(user);
         if (!users.containsKey(id)) {
             log.error("User with such id is not found");
             throw new ValidationException("User with such id is not found");
         }
-        if (Strings.isBlank(user.getName())) {
-            user.setName(user.getLogin());
-            log.debug("Name is null or empty. Login is used as name");
-        }
         users.put(id, user);
-        log.debug("User updated");
+        log.debug("User updated {}", user);
         return user;
     }
 

@@ -15,41 +15,41 @@ import java.util.Map;
 
 @RestController
 @Slf4j
+@RequestMapping(value = "/films")
 public class FilmController {
-    private static int idCounter = 0;
-    private final Map<Integer, Film> films = new HashMap<>();
+    private static long idCounter = 0;
+    private final Map<Long, Film> films = new HashMap<>();
 
-    @GetMapping("/films")
+    private static void validate(Film film) {
+        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            log.error("Wrong ReleaseDate");
+            throw new ValidationException("Wrong ReleaseDate");
+        }
+    }
+
+    @GetMapping
     public List<Film> findAll() {
         return new ArrayList<Film>(films.values());
     }
 
-    @PostMapping(value = "/films")
+    @PostMapping
     public Film create(@RequestBody @Valid Film film) {
+        validate(film);
         film.setId(++idCounter);
-        if (film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            films.put(film.getId(), film);
-            log.debug("Film created");
-        } else {
-            log.error("Wrong ReleaseDate");
-            throw new ValidationException("Wrong ReleaseDate");
-        }
+        films.put(film.getId(), film);
+        log.debug("Film created {}", film);
         return film;
     }
 
-    @PutMapping(value = "/films")
+    @PutMapping()
     public Film update(@RequestBody @Valid Film film) {
         if (!films.containsKey(film.getId())) {
             log.error("Film with such id is not found");
             throw new ValidationException("Film with such id is not found");
         }
-        if (film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            films.put(film.getId(), film);
-            log.debug("Film created");
-        } else {
-            log.error("Wrong ReleaseDate");
-            throw new ValidationException("Wrong ReleaseDate");
-        }
+        validate(film);
+        films.put(film.getId(), film);
+        log.debug("Film updated: {}", film);
         return film;
     }
 
