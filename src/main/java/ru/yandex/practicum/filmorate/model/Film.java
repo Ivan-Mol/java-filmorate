@@ -1,20 +1,24 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
-@Builder
 public class Film {
+    private final Set<Long> likes = new HashSet<>();
     private Long id;
     @NotBlank(message = "Name is empty")
     private String name;
@@ -24,4 +28,12 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Duration is incorrect")
     private int duration;
+
+    public void addLike(Long userId) {
+        likes.add(userId);
+    }
+
+    public void removeLike(Long userId) {
+        likes.remove(userId);
+    }
 }

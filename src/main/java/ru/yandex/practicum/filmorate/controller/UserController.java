@@ -1,65 +1,57 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@Slf4j
 @RequestMapping(value = "/users")
+@RequiredArgsConstructor
 public class UserController {
-    private static long idCounter = 0;
-    private final Map<Long, User> users = new HashMap<>();
 
-    private static void validate(User user) {
-        if (user.getLogin().contains(" ")) {
-            log.error("Login contains whitespace");
-            throw new ValidationException("Login contains whitespace");
-        }
-        if (Strings.isBlank(user.getName())) {
-            user.setName(user.getLogin());
-            log.debug("Name is null or empty. Login is used as name");
-        }
+    private final UserService userService;
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        return userService.getUser(id);
     }
 
     @GetMapping
     public List<User> findAll() {
-        return new ArrayList<>(users.values());
+        return userService.findAll();
     }
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-        validate(user);
-        Long newId = ++idCounter;
-        user.setId(newId);
-        users.put(newId, user);
-        log.debug("User created {}", user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@RequestBody @Valid User user) {
-        Long id = user.getId();
-        validate(user);
-        if (!users.containsKey(id)) {
-            log.error("User with such id is not found");
-            throw new ValidationException("User with such id is not found");
-        }
-        users.put(id, user);
-        log.debug("User updated {}", user);
-        return user;
+        return userService.update(user);
     }
 
-//    электронная почта не может быть пустой и должна содержать символ @;
-//    логин не может быть пустым и содержать пробелы;
-//    имя для отображения может быть пустым — в таком случае будет использован логин;
-//    дата рождения не может быть в будущем.
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable long id, @PathVariable long friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(@PathVariable long id, @PathVariable long friendId) {
+        return userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public List<User> findAllFriends(@PathVariable long id) {
+        return userService.findAllFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> findMutualFriends(@PathVariable long id, @PathVariable long otherId) {
+        return userService.findMutualFriends(id, otherId);
+    }
 }
