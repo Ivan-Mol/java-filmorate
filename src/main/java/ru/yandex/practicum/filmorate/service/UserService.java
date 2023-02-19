@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
@@ -11,20 +14,33 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
-    public User addFriend(long userID, long friendID) {
-        userStorage.get(userID).addFriendID(userStorage.get(friendID).getId());
-        userStorage.get(friendID).addFriendID(userID);
-        return userStorage.get(userID);
+    private static void validate(User user) {
+        if (user.getLogin().contains(" ")) {
+            log.error("Login contains whitespace");
+            throw new ValidationException("Login contains whitespace");
+        }
+        if (Strings.isBlank(user.getName())) {
+            user.setName(user.getLogin());
+            log.debug("Name is null or empty. Login is used as name");
+        }
     }
 
-    public User removeFriend(long userID, long friendID) {
-        userStorage.get(userID).removeFriendID(userStorage.get(friendID).getId());
+    public void addFriend(long userID, long friendID) {
+        checkUserExists(friendID);
+        userStorage.get(userID).addFriendID(friendID);
+        userStorage.get(friendID).addFriendID(userID);
+        userStorage.get(userID);
+    }
+
+    public void removeFriend(long userID, long friendID) {
+        checkUserExists(friendID);
+        userStorage.get(userID).removeFriendID(friendID);
         userStorage.get(friendID).removeFriendID(userID);
-        return userStorage.get(userID);
     }
 
     public List<User> findAll() {
@@ -38,24 +54,32 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public List<User> findMutualFriends(long id1, long id2) {
-        Set<Long> id2friends = new HashSet<>(userStorage.get(id2).getFriends());
-        return userStorage.get(id1).getFriends().stream()
+    public List<User> findMutualFriends(long id, long otherId) {
+        Set<Long> id2friends = new HashSet<>(userStorage.get(otherId).getFriends());
+        return userStorage.get(id).getFriends().stream()
                 .filter(id2friends::contains)
                 .map(userStorage::get)
                 .collect(Collectors.toList());
     }
 
     public User create(User user) {
+        validate(user);
         return userStorage.create(user);
     }
 
     public User update(User user) {
+        validate(user);
         return userStorage.update(user);
     }
 
     public User getUser(Long id) {
         return userStorage.get(id);
     }
+
+    //throws RuntimeException if User doesn't exist
+    private void checkUserExists(long userId) {
+        userStorage.get(userId);
+    }
+
 
 }

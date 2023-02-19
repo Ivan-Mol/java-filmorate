@@ -13,6 +13,4 @@ public interface FilmStorage {
     Film get(Long id);
 
     Film update(Film film);
-
-    List<Film> bestByLikes(int count);
 }
