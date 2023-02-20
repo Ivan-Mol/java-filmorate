@@ -1,61 +1,61 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@Slf4j
 @RequestMapping(value = "/films")
+@RequiredArgsConstructor
+@Slf4j
 public class FilmController {
-    private static long idCounter = 0;
-    private final Map<Long, Film> films = new HashMap<>();
 
-    private static void validate(Film film) {
-        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            log.error("Wrong ReleaseDate");
-            throw new ValidationException("Wrong ReleaseDate");
-        }
+    private final FilmService filmService;
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        log.debug("received GET /films/{}", id);
+        return filmService.getFilm(id);
     }
 
     @GetMapping
     public List<Film> findAll() {
-        return new ArrayList<Film>(films.values());
+        log.debug("received GET /films");
+        return filmService.findAll();
     }
 
-    @PostMapping
+    @PostMapping()
     public Film create(@RequestBody @Valid Film film) {
-        validate(film);
-        film.setId(++idCounter);
-        films.put(film.getId(), film);
-        log.debug("Film created {}", film);
-        return film;
+        log.debug("received POST /films with body {}", film);
+        return filmService.create(film);
     }
 
     @PutMapping()
     public Film update(@RequestBody @Valid Film film) {
-        if (!films.containsKey(film.getId())) {
-            log.error("Film with such id is not found");
-            throw new ValidationException("Film with such id is not found");
-        }
-        validate(film);
-        films.put(film.getId(), film);
-        log.debug("Film updated: {}", film);
-        return film;
+        log.debug("received PUT /films with body {}", film);
+        return filmService.update(film);
     }
 
-//    название не может быть пустым;
-//    максимальная длина описания — 200 символов;
-//    дата релиза — не раньше 28 декабря 1895 года;
-//    продолжительность фильма должна быть положительной.
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        log.debug("received PUT /films/{}/like/{} ", id, userId);
+        filmService.addLike(id, userId);
+    }
 
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable long id, @PathVariable long userId) {
+        log.debug("received DELETE /films/{}/like/{} ", id, userId);
+        filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> bestByLikes(@RequestParam(name = "count", defaultValue = "10", required = false) int count) {
+        log.debug("received GET /films/popular, count={}", count);
+        return filmService.bestByLikes(count);
+    }
 }
