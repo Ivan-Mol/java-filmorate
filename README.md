@@ -9,7 +9,7 @@ Project of social network with rating of films.
 
 ![This is an image](https://github.com/Ivan-Mol/java-filmorate/blob/main/filmorate-database.png?raw=true)
 
-#Tables
+Requests
 
 **Get all users:**  
 
