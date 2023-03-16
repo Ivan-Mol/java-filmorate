@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -35,5 +36,10 @@ public class User {
 
     public void removeFriendID(Long friendID) {
         friends.remove(friendID);
+    }
+
+    public void setFriendsList(List<Long> friendsIds){
+        friends.clear();
+        friends.addAll(friendsIds);
     }
 }

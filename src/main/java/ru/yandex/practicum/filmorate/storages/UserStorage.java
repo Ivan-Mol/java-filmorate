@@ -12,4 +12,6 @@ public interface UserStorage {
     User update(User user);
 
     User get(Long id);
+
+    void addFriend(long userID, long friendID);
 }

@@ -28,6 +28,10 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Duration is incorrect")
     private int duration;
+    @NotBlank(message = "Rating is empty")
+    private Mpa mpa;
+    private Set<Genre> genres = new HashSet<>();
+
 
     public void addLike(Long userId) {
         likes.add(userId);
