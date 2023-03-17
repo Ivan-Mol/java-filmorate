@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
@@ -34,13 +33,13 @@ public class UserService {
     public void addFriend(long userID, long friendID) {
         checkUserExists(userID);
         checkUserExists(friendID);
-        userStorage.addFriend(userID,friendID);
+        userStorage.addFriend(userID, friendID);
     }
 
     public void removeFriend(long userID, long friendID) {
         checkUserExists(userID);
         checkUserExists(friendID);
-        userStorage.removeFriend(userID,friendID);
+        userStorage.removeFriend(userID, friendID);
     }
 
     public List<User> findAll() {

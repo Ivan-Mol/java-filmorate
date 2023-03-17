@@ -20,9 +20,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Long> likes = new TreeMap<>();
 
     private final Map<Long, Genre> genres = new TreeMap<>();
-    private static final List<Mpa>  mpaRatings
-            = List.of(new Mpa(1,"G"), new Mpa(2,"PG"),new Mpa(3,"PG-13"),
-            new Mpa(4,"R"), new Mpa(5,"NC-17"));
+    private static final List<Mpa> mpaRatings
+            = List.of(new Mpa(1, "G"), new Mpa(2, "PG"), new Mpa(3, "PG-13"),
+            new Mpa(4, "R"), new Mpa(5, "NC-17"));
 
 
     @Override
@@ -60,8 +60,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Mpa getMpa(long id) {
-        for (Mpa mpa: mpaRatings) {
-            if (mpa.getId()==id){
+        for (Mpa mpa : mpaRatings) {
+            if (mpa.getId() == id) {
                 return mpa;
             }
         }
@@ -84,16 +84,17 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.error("Genre with such id(" + genreId + ") is not found");
             throw new NotFoundException("Genre with such id(" + genreId + ") is not found");
         }
-        return genres.get(genreId);    }
+        return genres.get(genreId);
+    }
 
     @Override
     public void addLike(long filmId, long userId) {
-        likes.put(filmId,userId);
+        likes.put(filmId, userId);
     }
 
     @Override
     public void removeLike(long filmId, long userId) {
-        likes.remove(filmId,userId);
+        likes.remove(filmId, userId);
 
     }
 
@@ -119,6 +120,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Genre> getFilmGenres(long filmId) {
-        return new ArrayList<>(films.get(filmId).getGenres());
+        // return new ArrayList<>(films.get(filmId).getGenres());
+        return null;
     }
 }

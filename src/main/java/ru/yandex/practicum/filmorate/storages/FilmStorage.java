@@ -17,6 +17,7 @@ public interface FilmStorage {
     Film update(Film film);
 
     Mpa getMpa(long id);
+
     List<Mpa> getAllMpa();
 
     List<Film> getPopular(int count);
@@ -32,9 +33,11 @@ public interface FilmStorage {
 
     List<Genre> getAllGenres();
 
-     void removeGenre(Film film);
-     void addGenre(Film film);
-     List<Genre> getFilmGenres(long filmId);
+    void removeGenre(Film film);
+
+    void addGenre(Film film);
+
+    List<Genre> getFilmGenres(long filmId);
 
 
 }

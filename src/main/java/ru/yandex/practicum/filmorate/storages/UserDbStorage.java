@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storages;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -100,8 +99,9 @@ public class UserDbStorage implements UserStorage {
     private List<Long> getFriendsIds(long userId) {
         return jdbcTemplate.queryForList("select friend_id from friends where user_id =?", Long.class, userId);
     }
-    public void removeFriend(long userId, long friendId){
-        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id =?",userId,friendId);
+
+    public void removeFriend(long userId, long friendId) {
+        jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id =?", userId, friendId);
 
     }
 

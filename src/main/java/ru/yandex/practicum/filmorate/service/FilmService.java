@@ -13,9 +13,7 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -39,21 +37,14 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-
-
-
-
-
-
-
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.addLike(filmId,userId);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.removeLike(filmId,userId);
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopular(int count) {
@@ -90,9 +81,7 @@ public class FilmService {
 
 
     public List<Genre> getAllGenres() {
-        return filmStorage.getAllGenres().stream()
-                .sorted(Comparator.comparing(Genre::getId))
-                .collect(Collectors.toList());
+        return filmStorage.getAllGenres();
     }
 
     public Genre getGenreById(long id) {

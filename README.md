@@ -2,26 +2,19 @@
 
 Project of social network with rating of films.
 
-
-
-
 ## DB diagram
 
 ![This is an image](https://github.com/Ivan-Mol/java-filmorate/blob/main/filmorate-database.png?raw=true)
 
+**Get all users:**
 
+```SELECT * FROM users;```
 
-**Get all users:**  
+**Get user by id**
 
-```SELECT * FROM users;```  
+```SELECT * FROM users WHERE user_id = {id};```
 
-
-**Get user by id** 
-
-```SELECT * FROM users WHERE user_id = {id};``` 
-
-
-**Get all films:**  
+**Get all films:**
 
 ```SELECT * FROM films;```
 

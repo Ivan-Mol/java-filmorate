@@ -8,16 +8,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Primary
 @Component
@@ -85,10 +84,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sql =
-                "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
-                        "WHERE id = ?";
-        jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
+        jdbcTemplate.update("UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
+                        "WHERE id = ?", film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getMpa().getId(), film.getId());
         return film;
     }
@@ -171,6 +168,6 @@ public class FilmDbStorage implements FilmStorage {
                 " GROUP BY films.id" +
                 " ORDER BY COUNT(likes.user_id) DESC" +
                 " LIMIT ?;";
-        return jdbcTemplate.query(getPopQuery,FILM_MAPPER,count);
+        return jdbcTemplate.query(getPopQuery, FILM_MAPPER, count);
     }
 }

@@ -79,12 +79,11 @@ public class FilmController {
         return filmService.getGenreById(id);
     }
 
-    @GetMapping("/genres/")
+    @GetMapping("/genres")
     public List<Genre> getAllGenres() {
         log.info("received GET'/genres' Get All Genres");
         return filmService.getAllGenres();
     }
-
 
 
 }
