@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Duration is incorrect")
     private int duration;
-    @NotBlank(message = "Rating is empty")
+    @NotNull
     private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
 

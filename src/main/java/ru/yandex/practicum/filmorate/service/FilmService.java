@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,8 +20,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
-    private static final Comparator<Film> BY_LIKES =
-            Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder());
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -34,8 +34,16 @@ public class FilmService {
 
     public Film update(Film film) {
         validate(film);
+        filmStorage.get(film.getId());
         return filmStorage.update(film);
     }
+
+
+
+
+
+
+
 
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
@@ -47,11 +55,12 @@ public class FilmService {
         filmStorage.get(filmId).removeLike(userId);
     }
 
-    public List<Film> bestByLikes(int count) {
-        return filmStorage.findAll().stream()
-                .sorted(BY_LIKES)
-                .limit(count)
-                .collect(Collectors.toList());
+    public List<Film> getPopular(int count) {
+        if (count < 1) {
+            new ValidationException("Can not be less 1");
+        }
+        return filmStorage.getPopular(count);
+
     }
 
     public Film getFilm(long id) {
@@ -68,4 +77,24 @@ public class FilmService {
     private void checkUserExists(long userId) {
         userStorage.get(userId);
     }
+
+    public List<Genre> getGenres() {
+        return filmStorage.getGenres().stream()
+                .sorted(Comparator.comparing(Genre::getId))
+                .collect(Collectors.toList());
+    }
+
+    public Genre getGenreById(long id) {
+        return filmStorage.getGenreById(id);
+    }
+
+    public void setGenres(Film film) {
+        filmStorage.removeGenre(film);
+        filmStorage.addGenre(film);
+    }
+
+    public List<Genre> getFilmGenres(long filmId) {
+        return new ArrayList<>(filmStorage.getFilmGenres(filmId));
+    }
+
 }
