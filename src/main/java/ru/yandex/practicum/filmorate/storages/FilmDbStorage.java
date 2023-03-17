@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storages;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,7 +15,9 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,11 +68,14 @@ public class FilmDbStorage implements FilmStorage {
             ps.setLong(5, film.getMpa().getId());
             return ps;
         }, keyHolder);
-
         film.setId(keyHolder.getKeyAs(Long.class));
+
+        setGenres(film);
         log.debug("Film created {}", film);
         return film;
     }
+
+
 
     @Override
     public Film get(Long id) {
@@ -87,6 +93,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                         "WHERE id = ?", film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getMpa().getId(), film.getId());
+        setGenres(film);
         return film;
     }
 
@@ -118,8 +125,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void removeLike(long filmId, long userId) {
-        String sql = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        jdbcTemplate.update(sql, filmId, userId);
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", filmId, userId);
     }
 
     @Override
@@ -169,5 +175,21 @@ public class FilmDbStorage implements FilmStorage {
                 " ORDER BY COUNT(likes.user_id) DESC" +
                 " LIMIT ?;";
         return jdbcTemplate.query(getPopQuery, FILM_MAPPER, count);
+    }
+
+    private void setGenres(Film film) {
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?",film.getId());
+        List<Genre> genresList = new ArrayList<>(film.getGenres());
+        jdbcTemplate.batchUpdate("INSERT INTO film_genres (film_id,genre_id) VALUES ( ?,? )", new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setLong(1, film.getId());
+                ps.setLong(2, genresList.get(i).getId());
+            }
+            @Override
+            public int getBatchSize() {
+                return film.getGenres().size();
+            }
+        });
     }
 }

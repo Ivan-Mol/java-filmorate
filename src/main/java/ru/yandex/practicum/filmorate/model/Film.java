@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -19,7 +20,6 @@ import java.util.Set;
 @ToString
 @EqualsAndHashCode
 public class Film {
-    private final Set<Long> likes = new HashSet<>();
     private Long id;
     @NotBlank(message = "Name is empty")
     private String name;
@@ -32,4 +32,17 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
+
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
+
+    public void removeGenre(Genre genre) {
+        genres.remove(genre);
+    }
+
+    public void setFriendsList(Set<Genre> newGenres) {
+        genres.clear();
+        genres.addAll(newGenres);
+    }
 }
