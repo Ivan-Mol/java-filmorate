@@ -7,11 +7,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,9 +44,7 @@ public class FilmDbStorage implements FilmStorage {
             film.setDescription(rs.getString("description"));
             film.setDuration(rs.getInt("duration"));
             film.setReleaseDate(Objects.requireNonNull(rs.getDate("release_date")).toLocalDate());
-            Mpa mpa = new Mpa();
-            mpa.setName(rs.getString("mpa_name"));
-            mpa.setId(rs.getLong("mpa_id"));
+            Mpa mpa = new Mpa(rs.getLong("mpa_id"),rs.getString("mpa_name"));
             film.setMpa(mpa);
             return film;
         });
@@ -92,6 +92,25 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public Mpa getMpa(long id) {
+        List<Mpa> mpas = jdbcTemplate
+                .query("SELECT * FROM mpa WHERE id = ?",
+                        (rs, rowNum) -> new Mpa(rs.getLong("id"),rs.getString("name")),id);
+        if (mpas.size()==0){
+            throw new NotFoundException("Mpa with this Id is not Found");
+        }else {
+            return mpas.get(0);
+        }
+    }
+
+    @Override
+    public List<Mpa> getAllMpa() {
+        return jdbcTemplate
+                .query("SELECT * FROM mpa",
+                        (rs, rowNum) -> new Mpa(rs.getLong("id"),rs.getString("name")));
+    }
+
 
     @Override
     public void addLike(long filmId, long userId) {
@@ -113,12 +132,19 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    public List<Genre> getGenres() {
+    public List<Genre> getAllGenres() {
         return null;
     }
 
-    public Genre getGenreById(long genreId) {
-        return null;
+    public Genre getGenre(long id) {
+        List<Genre> genres = jdbcTemplate
+                .query("SELECT * FROM genres WHERE id = ?",
+                        (rs, rowNum) -> new Genre(rs.getLong("id"),rs.getString("name")),id);
+        if (genres.size()==0){
+            throw new NotFoundException("Genre with this Id is not Found");
+        }else {
+            return genres.get(0);
+        }
     }
 
     public void removeGenre(Film film) {

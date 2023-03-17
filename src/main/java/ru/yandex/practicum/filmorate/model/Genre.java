@@ -7,7 +7,12 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class Genre {
-    private Integer id;
+    private long id;
     private String name;
+
+    public Genre(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
 

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Long> likes = new TreeMap<>();
 
     private final Map<Long, Genre> genres = new TreeMap<>();
-
+    private static final List<Mpa>  mpaRatings
+            = List.of(new Mpa(1,"G"), new Mpa(2,"PG"),new Mpa(3,"PG-13"),
+            new Mpa(4,"R"), new Mpa(5,"NC-17"));
 
 
     @Override
@@ -56,12 +59,27 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Mpa getMpa(long id) {
+        for (Mpa mpa: mpaRatings) {
+            if (mpa.getId()==id){
+                return mpa;
+            }
+        }
+        throw new NotFoundException("Mpa with such id is not found");
+    }
+
+    @Override
+    public List<Mpa> getAllMpa() {
+        return mpaRatings;
+    }
+
+    @Override
     public List<Film> getPopular(int count) {
         return null;
     }
 
     @Override
-    public Genre getGenreById(long genreId) {
+    public Genre getGenre(long genreId) {
         if (!genres.containsKey(genreId)) {
             log.error("Genre with such id(" + genreId + ") is not found");
             throw new NotFoundException("Genre with such id(" + genreId + ") is not found");
@@ -83,7 +101,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Genre> getGenres() {
+    public List<Genre> getAllGenres() {
         return new ArrayList<>(genres.values());
     }
 

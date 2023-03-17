@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -42,6 +43,18 @@ public class FilmController {
         return filmService.update(film);
     }
 
+    @GetMapping("/mpa/{id}")
+    public Mpa getMpa(@PathVariable long id) {
+        log.debug("received GET /mpa/{}", id);
+        return filmService.getMpa(id);
+    }
+
+    @GetMapping("/mpa")
+    public List<Mpa> getAllMpa() {
+        log.info("received GET /mpa/ Get All Mpa");
+        return filmService.getAllMpa();
+    }
+
     @PutMapping("/films/{id}/like/{userId}")
     public void addLike(@PathVariable long id, @PathVariable long userId) {
         log.debug("received PUT /films/{}/like/{} ", id, userId);
@@ -67,9 +80,11 @@ public class FilmController {
     }
 
     @GetMapping("/genres/{id}")
-    public Genre getGenreById(@PathVariable long id) {
+    public Genre getGenre(@PathVariable long id) {
         log.info("received GET'/genres' with Id={}", id);
         return filmService.getGenreById(id);
     }
+
+
 
 }
