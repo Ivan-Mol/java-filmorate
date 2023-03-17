@@ -73,16 +73,16 @@ public class FilmController {
         return filmService.getPopular(count);
     }
 
-    @GetMapping("/genres")
-    public List<Genre> getGenres() {
-        log.info("received GET: '/genres'");
-        return filmService.getGenres();
-    }
-
     @GetMapping("/genres/{id}")
     public Genre getGenre(@PathVariable long id) {
         log.info("received GET'/genres' with Id={}", id);
         return filmService.getGenreById(id);
+    }
+
+    @GetMapping("/genres/")
+    public List<Genre> getAllGenres() {
+        log.info("received GET'/genres' Get All Genres");
+        return filmService.getAllGenres();
     }
 
 

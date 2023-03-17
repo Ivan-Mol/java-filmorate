@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -32,7 +33,6 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
-
 
     public void addLike(Long userId) {
         likes.add(userId);

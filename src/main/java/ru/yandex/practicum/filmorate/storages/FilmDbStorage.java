@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Primary
 @Component
@@ -25,6 +27,20 @@ public class FilmDbStorage implements FilmStorage {
             "from films " +
             "LEFT JOIN mpa " +
             "ON films.mpa_id  = mpa.id";
+
+    private static final String FIND_BY_ID_QUERY = FIND_ALL_QUERY + " where films.id = ?";
+
+    private static final RowMapper<Film> FILM_MAPPER = (rs, rowNum) -> {
+        Film film = new Film();
+        film.setId(rs.getLong("id"));
+        film.setName(rs.getString("name"));
+        film.setDescription(rs.getString("description"));
+        film.setDuration(rs.getInt("duration"));
+        film.setReleaseDate(Objects.requireNonNull(rs.getDate("release_date")).toLocalDate());
+        Mpa mpa = new Mpa(rs.getLong("mpa_id"), rs.getString("mpa_name"));
+        film.setMpa(mpa);
+        return film;
+    };
     private final JdbcTemplate jdbcTemplate;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -33,21 +49,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-        return getFilms(FIND_ALL_QUERY);
-    }
-
-    private List<Film> getFilms(String query) {
-        return jdbcTemplate.query(query, (rs, rowNum) -> {
-            Film film = new Film();
-            film.setId(rs.getLong("id"));
-            film.setName(rs.getString("name"));
-            film.setDescription(rs.getString("description"));
-            film.setDuration(rs.getInt("duration"));
-            film.setReleaseDate(Objects.requireNonNull(rs.getDate("release_date")).toLocalDate());
-            Mpa mpa = new Mpa(rs.getLong("mpa_id"),rs.getString("mpa_name"));
-            film.setMpa(mpa);
-            return film;
-        });
+        return jdbcTemplate.query(FIND_ALL_QUERY, FILM_MAPPER);
     }
 
     @Override
@@ -72,8 +74,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(Long id) {
-        String findByIdQuery = FIND_ALL_QUERY + " where films.id = " + id;
-        List<Film> list = getFilms(findByIdQuery);
+        List<Film> list = jdbcTemplate.query(FIND_BY_ID_QUERY, FILM_MAPPER, id);
         if (!list.isEmpty()) {
             return list.get(0);
         } else {
@@ -96,10 +97,10 @@ public class FilmDbStorage implements FilmStorage {
     public Mpa getMpa(long id) {
         List<Mpa> mpas = jdbcTemplate
                 .query("SELECT * FROM mpa WHERE id = ?",
-                        (rs, rowNum) -> new Mpa(rs.getLong("id"),rs.getString("name")),id);
-        if (mpas.size()==0){
+                        (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")), id);
+        if (mpas.size() == 0) {
             throw new NotFoundException("Mpa with this Id is not Found");
-        }else {
+        } else {
             return mpas.get(0);
         }
     }
@@ -108,7 +109,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Mpa> getAllMpa() {
         return jdbcTemplate
                 .query("SELECT * FROM mpa",
-                        (rs, rowNum) -> new Mpa(rs.getLong("id"),rs.getString("name")));
+                        (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")));
     }
 
 
@@ -133,16 +134,18 @@ public class FilmDbStorage implements FilmStorage {
 
 
     public List<Genre> getAllGenres() {
-        return null;
+        return jdbcTemplate
+                .query("SELECT * FROM genres",
+                        (rs, rowNum) -> new Genre(rs.getLong("id"), rs.getString("name")));
     }
 
     public Genre getGenre(long id) {
         List<Genre> genres = jdbcTemplate
                 .query("SELECT * FROM genres WHERE id = ?",
-                        (rs, rowNum) -> new Genre(rs.getLong("id"),rs.getString("name")),id);
-        if (genres.size()==0){
+                        (rs, rowNum) -> new Genre(rs.getLong("id"), rs.getString("name")), id);
+        if (genres.size() == 0) {
             throw new NotFoundException("Genre with this Id is not Found");
-        }else {
+        } else {
             return genres.get(0);
         }
     }
@@ -161,6 +164,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(int count) {
-        return null;
+        String getPopQuery = "SELECT films.*, mpa.NAME AS mpa_name" +
+                " FROM films" +
+                " LEFT JOIN likes ON films.id = likes.film_id" +
+                " LEFT JOIN mpa ON FILMS.MPA_ID = MPA.ID" +
+                " GROUP BY films.id" +
+                " ORDER BY COUNT(likes.user_id) DESC" +
+                " LIMIT ?;";
+        return jdbcTemplate.query(getPopQuery,FILM_MAPPER,count);
     }
 }

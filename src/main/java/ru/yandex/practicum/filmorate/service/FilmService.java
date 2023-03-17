@@ -48,17 +48,17 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.get(filmId).addLike(userId);
+        filmStorage.addLike(filmId,userId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.get(filmId).removeLike(userId);
+        filmStorage.removeLike(filmId,userId);
     }
 
     public List<Film> getPopular(int count) {
         if (count < 1) {
-            new ValidationException("Can not be less 1");
+            throw new ValidationException("Can not be less 1");
         }
         return filmStorage.getPopular(count);
 
@@ -89,7 +89,7 @@ public class FilmService {
     }
 
 
-    public List<Genre> getGenres() {
+    public List<Genre> getAllGenres() {
         return filmStorage.getAllGenres().stream()
                 .sorted(Comparator.comparing(Genre::getId))
                 .collect(Collectors.toList());

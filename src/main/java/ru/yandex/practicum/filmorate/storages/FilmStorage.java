@@ -19,10 +19,6 @@ public interface FilmStorage {
     Mpa getMpa(long id);
     List<Mpa> getAllMpa();
 
-
-
-
-
     List<Film> getPopular(int count);
 
 
