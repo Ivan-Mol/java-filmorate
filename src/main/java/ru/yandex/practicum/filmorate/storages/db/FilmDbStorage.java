@@ -48,7 +48,7 @@ public class FilmDbStorage implements FilmStorage {
         if (!list.isEmpty()) {
             return list.get(0);
         } else {
-            throw new NotFoundException("User with such id(" + id + ") is not found");
+            throw new NotFoundException("Film with such id(" + id + ") is not found");
         }
     }
 

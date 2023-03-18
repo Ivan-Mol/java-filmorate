@@ -43,7 +43,7 @@ public class UserService {
     }
 
     public List<User> findAll() {
-        return userStorage.findAll();
+        return userStorage.getAll();
     }
 
     public List<User> findAllFriends(long id) {

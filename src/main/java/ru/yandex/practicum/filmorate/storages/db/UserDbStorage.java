@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,9 +13,7 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Primary
 @Component
@@ -30,19 +27,46 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public List<User> findAll() {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users");
-        List<User> users = new ArrayList<>();
-        while (userRows.next()) {
-            User user = new User();
-            user.setId(userRows.getLong("id"));
-            user.setEmail(userRows.getString("email"));
-            user.setLogin(userRows.getString("login"));
-            user.setName(userRows.getString("name"));
-            user.setBirthday(Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate());
-            users.add(user);
+    public List<User> getAll() {
+        String getAllUsersQuery = "SELECT u.*, f.FRIEND_ID" +
+                " FROM USERS u" +
+                " LEFT JOIN FRIENDS f ON u.ID = f.USER_ID";
+        return getUsers(getAllUsersQuery);
+    }
+
+    @Override
+    public User get(Long id) {
+        String getUserByIdQuery = "SELECT u.*, f.FRIEND_ID" +
+                " FROM USERS u" +
+                " LEFT JOIN FRIENDS f ON u.ID = f.USER_ID" +
+                " WHERE u.ID = " + id;
+        List<User> list = getUsers(getUserByIdQuery);
+        if (!list.isEmpty()) {
+            return list.get(0);
+        } else {
+            throw new NotFoundException("User with such id(" + id + ") is not found");
         }
-        return users;
+    }
+
+    private ArrayList<User> getUsers(String query) {
+        Map<Long, User> users = new HashMap<>();
+        jdbcTemplate.query(query, rs -> {
+            long id = rs.getLong("id");
+            if (!users.containsKey(id)) {
+                User user = new User();
+                user.setId(id);
+                user.setEmail(rs.getString("email"));
+                user.setLogin(rs.getString("login"));
+                user.setName(rs.getString("name"));
+                user.setBirthday(Objects.requireNonNull(rs.getDate("birthday")).toLocalDate());
+                users.put(id, user);
+            }
+            Long friendId = rs.getObject("friend_id", Long.class);
+            if (friendId != null) {
+                users.get(id).addFriendID(friendId);
+            }
+        });
+        return new ArrayList<>(users.values());
     }
 
     @Override
@@ -72,33 +96,10 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
-    @Override
-    public User get(Long id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
-
-        if (userRows.next()) {
-            User user = new User();
-            user.setId(userRows.getLong("id"));
-            user.setEmail(userRows.getString("email"));
-            user.setLogin(userRows.getString("login"));
-            user.setName(userRows.getString("name"));
-            user.setBirthday(Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate());
-            user.setFriendsList(getFriendsIds(id));
-            return user;
-        } else {
-            log.error("User with such id(" + id + ") is not found");
-            throw new NotFoundException("User with such id(" + id + ") is not found");
-        }
-    }
-
     public void addFriend(long userId, long friendId) {
         jdbcTemplate.update("INSERT INTO friends (user_id, friend_id) values (?,? )",
                 userId, friendId);
         log.debug("Friend added {}", friendId);
-    }
-
-    private List<Long> getFriendsIds(long userId) {
-        return jdbcTemplate.queryForList("select friend_id from friends where user_id =?", Long.class, userId);
     }
 
     public void removeFriend(long userId, long friendId) {
