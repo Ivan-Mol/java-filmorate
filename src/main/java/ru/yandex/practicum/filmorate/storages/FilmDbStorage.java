@@ -18,8 +18,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Primary
 @Component
@@ -81,6 +83,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film get(Long id) {
         List<Film> list = jdbcTemplate.query(FIND_BY_ID_QUERY, FILM_MAPPER, id);
         if (!list.isEmpty()) {
+            list.get(0).setGenreList(getFilmGenres(id));
             return list.get(0);
         } else {
             log.error("User with such id(" + id + ") is not found");
@@ -94,7 +97,7 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE id = ?", film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getMpa().getId(), film.getId());
         setGenres(film);
-        return film;
+        return get(film.getId());
     }
 
     @Override
@@ -161,11 +164,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Genre> getFilmGenres(long filmId) {
-        return null;
-    }
-
-    @Override
     public List<Film> getPopular(int count) {
         String getPopQuery = "SELECT films.*, mpa.NAME AS mpa_name" +
                 " FROM films" +
@@ -178,18 +176,28 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void setGenres(Film film) {
-        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?",film.getId());
+        Long filmId = film.getId();
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
         List<Genre> genresList = new ArrayList<>(film.getGenres());
         jdbcTemplate.batchUpdate("INSERT INTO film_genres (film_id,genre_id) VALUES ( ?,? )", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setLong(1, film.getId());
+                ps.setLong(1, filmId);
                 ps.setLong(2, genresList.get(i).getId());
             }
+
             @Override
             public int getBatchSize() {
-                return film.getGenres().size();
+                return genresList.size();
             }
         });
+    }
+    private List<Genre> getFilmGenres(long filmId){
+        return jdbcTemplate
+                .query("SELECT g.id, g.name" +
+                                " FROM FILM_GENRES fg" +
+                                " LEFT JOIN GENRES g" +
+                                " WHERE fg.FILM_ID = ?",
+                        (rs, rowNum) -> new Genre(rs.getLong("id"), rs.getString("name")),filmId);
     }
 }

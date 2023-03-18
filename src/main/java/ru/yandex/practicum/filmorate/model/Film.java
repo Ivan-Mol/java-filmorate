@@ -33,15 +33,7 @@ public class Film {
     private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
 
-    public void addGenre(Genre genre) {
-        genres.add(genre);
-    }
-
-    public void removeGenre(Genre genre) {
-        genres.remove(genre);
-    }
-
-    public void setFriendsList(Set<Genre> newGenres) {
+    public void setGenreList(List<Genre> newGenres) {
         genres.clear();
         genres.addAll(newGenres);
     }

@@ -87,15 +87,4 @@ public class FilmService {
     public Genre getGenreById(long id) {
         return filmStorage.getGenre(id);
     }
-
-    public void setGenres(Film film) {
-        filmStorage.removeGenre(film);
-        filmStorage.addGenre(film);
-    }
-
-    public List<Genre> getFilmGenres(long filmId) {
-        return new ArrayList<>(filmStorage.getFilmGenres(filmId));
-    }
-
-
 }

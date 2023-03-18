@@ -117,10 +117,4 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void addGenre(Film film) {
 
     }
-
-    @Override
-    public List<Genre> getFilmGenres(long filmId) {
-        // return new ArrayList<>(films.get(filmId).getGenres());
-        return null;
-    }
 }
