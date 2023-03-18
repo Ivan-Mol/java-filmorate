@@ -11,9 +11,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -31,10 +29,12 @@ public class Film {
     private int duration;
     @NotNull
     private Mpa mpa;
-    private Set<Genre> genres = new HashSet<>();
+    private List<Genre> genres = new ArrayList<>();
 
     public void setGenreList(List<Genre> newGenres) {
         genres.clear();
         genres.addAll(newGenres);
     }
+
+
 }

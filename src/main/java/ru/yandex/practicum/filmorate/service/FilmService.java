@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,6 +64,7 @@ public class FilmService {
         if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
             throw new ValidationException("Wrong ReleaseDate");
         }
+        film.setGenreList(film.getGenres().stream().distinct().collect(Collectors.toList()));
     }
 
     //throws RuntimeException if User doesn't exist
