@@ -106,5 +106,15 @@ public class UserDbStorage implements UserStorage {
 
     }
 
+    @Override
+    public void addLike(long filmId, long userId) {
+        String sql = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
+        jdbcTemplate.update(sql, filmId, userId);
+    }
+
+    @Override
+    public void removeLike(long filmId, long userId) {
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", filmId, userId);
+    }
 
 }

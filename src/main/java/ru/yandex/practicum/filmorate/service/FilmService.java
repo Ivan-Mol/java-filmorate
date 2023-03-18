@@ -24,11 +24,11 @@ public class FilmService {
         if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
             throw new ValidationException("Wrong ReleaseDate");
         }
-        film.setGenreList(film.getGenres().stream().distinct().collect(Collectors.toList()));
+//        film.setGenreList(film.getGenres().stream().distinct().collect(Collectors.toList()));
     }
 
     public List<Film> findAll() {
-        return filmStorage.findAll();
+        return filmStorage.getAll();
     }
 
     public Film create(Film film) {
@@ -44,19 +44,19 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.addLike(filmId, userId);
+        userStorage.addLike(filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.removeLike(filmId, userId);
+        userStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopular(int count) {
         if (count < 1) {
             throw new ValidationException("Can not be less 1");
         }
-        return filmStorage.getPopular(count);
+        return filmStorage.getTopByLikes(count);
 
     }
 

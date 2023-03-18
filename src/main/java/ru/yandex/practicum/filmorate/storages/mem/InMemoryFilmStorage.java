@@ -17,11 +17,10 @@ import java.util.TreeMap;
 public class InMemoryFilmStorage implements FilmStorage {
     private static long idCounter = 0;
     private final Map<Long, Film> films = new TreeMap<>();
-    private final Map<Long, Long> likes = new TreeMap<>();
     private final Map<Long, Genre> genres = new TreeMap<>();
 
     @Override
-    public List<Film> findAll() {
+    public List<Film> getAll() {
         return new ArrayList<>(films.values());
     }
 
@@ -54,23 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopular(int count) {
+    public List<Film> getTopByLikes(int count) {
         return null;
-    }
-
-    @Override
-    public void addLike(long filmId, long userId) {
-        likes.put(filmId, userId);
-    }
-
-    @Override
-    public void removeLike(long filmId, long userId) {
-        likes.remove(filmId, userId);
-
-    }
-
-    @Override
-    public void removeGenre(Film film) {
-        genres.remove(film.getId());
     }
 }

@@ -32,8 +32,7 @@ public class Film {
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
 
-    public void setGenreList(List<Genre> newGenres) {
-        genres.clear();
-        genres.addAll(newGenres);
+    public void addGenre(Genre genre) {
+        genres.add(genre);
     }
 }
