@@ -32,20 +32,19 @@ create TABLE IF NOT EXISTS users
 create TABLE IF NOT EXISTS film_genres
 (
     film_id  BIGINT REFERENCES films (id) ON delete CASCADE,
-    genre_id int REFERENCES genres (id) ON delete RESTRICT,
-    UNIQUE (film_id, genre_id)
+    genre_id int REFERENCES genres (id) ON delete CASCADE,
+    PRIMARY KEY (film_id, genre_id)
     );
 
 create TABLE IF NOT EXISTS likes
 (
     film_id  BIGINT REFERENCES films (id) ON delete CASCADE,
     user_id BIGINT REFERENCES users (id) ON delete CASCADE,
-    UNIQUE (film_id, user_id)
+    PRIMARY KEY (film_id, user_id)
     );
 
 create TABLE IF NOT EXISTS friends
 (
     user_id BIGINT REFERENCES users (id) ON delete CASCADE,
-    friend_id BIGINT REFERENCES users (id) ON delete CASCADE,
-    confirmed boolean
+    friend_id BIGINT REFERENCES users (id) ON delete CASCADE
     );
