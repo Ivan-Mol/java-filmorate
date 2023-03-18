@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.storages;
+package ru.yandex.practicum.filmorate.storages.mem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +18,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private static long idCounter = 0;
     private final Map<Long, Film> films = new TreeMap<>();
     private final Map<Long, Long> likes = new TreeMap<>();
-
     private final Map<Long, Genre> genres = new TreeMap<>();
-    private static final List<Mpa> mpaRatings
-            = List.of(new Mpa(1, "G"), new Mpa(2, "PG"), new Mpa(3, "PG-13"),
-            new Mpa(4, "R"), new Mpa(5, "NC-17"));
-
 
     @Override
     public List<Film> findAll() {
@@ -59,32 +54,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Mpa getMpa(long id) {
-        for (Mpa mpa : mpaRatings) {
-            if (mpa.getId() == id) {
-                return mpa;
-            }
-        }
-        throw new NotFoundException("Mpa with such id is not found");
-    }
-
-    @Override
-    public List<Mpa> getAllMpa() {
-        return mpaRatings;
-    }
-
-    @Override
     public List<Film> getPopular(int count) {
         return null;
-    }
-
-    @Override
-    public Genre getGenre(long genreId) {
-        if (!genres.containsKey(genreId)) {
-            log.error("Genre with such id(" + genreId + ") is not found");
-            throw new NotFoundException("Genre with such id(" + genreId + ") is not found");
-        }
-        return genres.get(genreId);
     }
 
     @Override
@@ -99,22 +70,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Long> getLikes(long filmId) {
-        return new ArrayList<>(likes.values());
-    }
-
-    @Override
-    public List<Genre> getAllGenres() {
-        return new ArrayList<>(genres.values());
-    }
-
-    @Override
     public void removeGenre(Film film) {
         genres.remove(film.getId());
-    }
-
-    @Override
-    public void addGenre(Film film) {
-
     }
 }

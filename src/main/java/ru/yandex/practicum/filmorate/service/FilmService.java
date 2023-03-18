@@ -5,14 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +19,13 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+
+    private static void validate(Film film) {
+        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            throw new ValidationException("Wrong ReleaseDate");
+        }
+        film.setGenreList(film.getGenres().stream().distinct().collect(Collectors.toList()));
+    }
 
     public List<Film> findAll() {
         return filmStorage.findAll();
@@ -60,33 +64,8 @@ public class FilmService {
         return filmStorage.get(id);
     }
 
-    private static void validate(Film film) {
-        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            throw new ValidationException("Wrong ReleaseDate");
-        }
-        film.setGenreList(film.getGenres().stream().distinct().collect(Collectors.toList()));
-    }
-
     //throws RuntimeException if User doesn't exist
     private void checkUserExists(long userId) {
         userStorage.get(userId);
-    }
-
-
-    public Mpa getMpa(long id) {
-        return filmStorage.getMpa(id);
-    }
-
-    public List<Mpa> getAllMpa() {
-        return filmStorage.getAllMpa();
-    }
-
-
-    public List<Genre> getAllGenres() {
-        return filmStorage.getAllGenres();
-    }
-
-    public Genre getGenreById(long id) {
-        return filmStorage.getGenre(id);
     }
 }

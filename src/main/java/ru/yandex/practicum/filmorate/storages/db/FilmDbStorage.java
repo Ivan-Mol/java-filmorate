@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storages;
+package ru.yandex.practicum.filmorate.storages.db;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -53,8 +54,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findAll() {
         List<Film> films = jdbcTemplate.query(FIND_ALL_QUERY, FILM_MAPPER);
-        for (Film f:films) {
-            f.setGenreList(getFilmGenres(f.getId()));        }
+        for (Film f : films) {
+            f.setGenreList(getFilmGenres(f.getId()));
+        }
         return films;
     }
 
@@ -102,24 +104,24 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    @Override
-    public Mpa getMpa(long id) {
-        List<Mpa> mpas = jdbcTemplate
-                .query("SELECT * FROM mpa WHERE id = ?",
-                        (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")), id);
-        if (mpas.size() == 0) {
-            throw new NotFoundException("Mpa with this Id is not Found");
-        } else {
-            return mpas.get(0);
-        }
-    }
+//    @Override
+//    public Mpa getMpa(long id) {
+//        List<Mpa> mpas = jdbcTemplate
+//                .query("SELECT * FROM mpa WHERE id = ?",
+//                        (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")), id);
+//        if (mpas.size() == 0) {
+//            throw new NotFoundException("Mpa with this Id is not Found");
+//        } else {
+//            return mpas.get(0);
+//        }
+//    }
 
-    @Override
-    public List<Mpa> getAllMpa() {
-        return jdbcTemplate
-                .query("SELECT * FROM mpa",
-                        (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")));
-    }
+//    @Override
+//    public List<Mpa> getAllMpa() {
+//        return jdbcTemplate
+//                .query("SELECT * FROM mpa",
+//                        (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")));
+//    }
 
 
     @Override
@@ -133,19 +135,19 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", filmId, userId);
     }
 
-    @Override
-    public List<Long> getLikes(long filmId) {
-        return jdbcTemplate
-                .query("SELECT user_id FROM likes WHERE film_id = ?",
-                        (rs, rowNum) -> rs.getLong("user_id"), filmId);
-    }
+//    @Override
+//    public List<Long> getLikes(long filmId) {
+//        return jdbcTemplate
+//                .query("SELECT user_id FROM likes WHERE film_id = ?",
+//                        (rs, rowNum) -> rs.getLong("user_id"), filmId);
+//    }
 
 
-    public List<Genre> getAllGenres() {
-        return jdbcTemplate
-                .query("SELECT * FROM genres",
-                        (rs, rowNum) -> new Genre(rs.getLong("id"), rs.getString("name")));
-    }
+//    public List<Genre> getAllGenres() {
+//        return jdbcTemplate
+//                .query("SELECT * FROM genres",
+//                        (rs, rowNum) -> new Genre(rs.getLong("id"), rs.getString("name")));
+//    }
 
     public Genre getGenre(long id) {
         List<Genre> genres = jdbcTemplate
@@ -163,7 +165,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void addGenre(Film film) {
-        if (film.getGenres() != null ) {
+        if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)",
                         film.getId(), genre.getId());
