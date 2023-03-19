@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.mem;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storages.MpaStorage;
@@ -7,6 +8,7 @@ import ru.yandex.practicum.filmorate.storages.MpaStorage;
 import java.util.List;
 
 @Component
+
 public class InMemoryMpaStorage implements MpaStorage {
 
     private static final List<Mpa> VALUES = List.of(

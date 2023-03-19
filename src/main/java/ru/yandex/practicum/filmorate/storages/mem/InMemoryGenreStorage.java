@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.mem;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storages.GenreStorage;
@@ -7,6 +8,7 @@ import ru.yandex.practicum.filmorate.storages.GenreStorage;
 import java.util.List;
 
 @Component
+
 public class InMemoryGenreStorage implements GenreStorage {
 
     private static final List<Genre> VALUES = List.of(
