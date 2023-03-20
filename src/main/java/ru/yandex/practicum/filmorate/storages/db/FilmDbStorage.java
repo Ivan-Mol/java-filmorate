@@ -126,19 +126,21 @@ public class FilmDbStorage implements FilmStorage {
         Long filmId = film.getId();
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
         List<Genre> genresList = film.getGenres();
-        String addGenresQuery = "MERGE INTO film_genres (film_id,genre_id) VALUES (?,?)";
-        jdbcTemplate.batchUpdate(addGenresQuery, new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setLong(1, filmId);
-                ps.setLong(2, genresList.get(i).getId());
-            }
+        if (film.getGenres()!=null && !film.getGenres().isEmpty()) {
+            String addGenresQuery = "MERGE INTO film_genres (film_id,genre_id) VALUES (?,?)";
+            jdbcTemplate.batchUpdate(addGenresQuery, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setLong(1, filmId);
+                    ps.setLong(2, genresList.get(i).getId());
+                }
 
-            @Override
-            public int getBatchSize() {
-                return genresList.size();
-            }
-        });
+                @Override
+                public int getBatchSize() {
+                    return genresList.size();
+                }
+            });
+        }
         log.debug("Genres {} for film {} updated", genresList, filmId);
     }
 }
