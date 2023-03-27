@@ -9,16 +9,16 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 public class Film {
-    private final Set<Long> likes = new HashSet<>();
     private Long id;
     @NotBlank(message = "Name is empty")
     private String name;
@@ -28,12 +28,11 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Duration is incorrect")
     private int duration;
+    @NotNull
+    private Mpa mpa;
+    private List<Genre> genres = new ArrayList<>();
 
-    public void addLike(Long userId) {
-        likes.add(userId);
-    }
-
-    public void removeLike(Long userId) {
-        likes.remove(userId);
+    public void addGenre(Genre genre) {
+        genres.add(genre);
     }
 }

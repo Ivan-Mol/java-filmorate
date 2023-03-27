@@ -31,20 +31,19 @@ public class UserService {
     }
 
     public void addFriend(long userID, long friendID) {
+        checkUserExists(userID);
         checkUserExists(friendID);
-        userStorage.get(userID).addFriendID(friendID);
-        userStorage.get(friendID).addFriendID(userID);
-        userStorage.get(userID);
+        userStorage.addFriend(userID, friendID);
     }
 
     public void removeFriend(long userID, long friendID) {
+        checkUserExists(userID);
         checkUserExists(friendID);
-        userStorage.get(userID).removeFriendID(friendID);
-        userStorage.get(friendID).removeFriendID(userID);
+        userStorage.removeFriend(userID, friendID);
     }
 
     public List<User> findAll() {
-        return userStorage.findAll();
+        return userStorage.getAll();
     }
 
     public List<User> findAllFriends(long id) {
@@ -69,8 +68,12 @@ public class UserService {
 
     public User update(User user) {
         validate(user);
-        return userStorage.update(user);
+        if (userStorage.get(user.getId()) != null) {
+            return userStorage.update(user);
+        }
+        return user;
     }
+
 
     public User getUser(Long id) {
         return userStorage.get(id);

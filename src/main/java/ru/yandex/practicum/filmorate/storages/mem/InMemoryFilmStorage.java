@@ -1,9 +1,12 @@
-package ru.yandex.practicum.filmorate.storages;
+package ru.yandex.practicum.filmorate.storages.mem;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +15,14 @@ import java.util.TreeMap;
 
 @Component
 @Slf4j
+
 public class InMemoryFilmStorage implements FilmStorage {
     private static long idCounter = 0;
     private final Map<Long, Film> films = new TreeMap<>();
+    private final Map<Long, Genre> genres = new TreeMap<>();
 
     @Override
-    public List<Film> findAll() {
+    public List<Film> getAll() {
         return new ArrayList<>(films.values());
     }
 
@@ -47,5 +52,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(film.getId(), film);
         log.debug("Film updated: {}", film);
         return film;
+    }
+
+    @Override
+    public List<Film> getTopByLikes(int count) {
+        return null;
     }
 }

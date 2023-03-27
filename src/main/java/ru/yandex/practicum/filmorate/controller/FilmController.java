@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/films")
+@RequestMapping("/films")
 @RequiredArgsConstructor
 @Slf4j
 public class FilmController {
@@ -29,13 +29,13 @@ public class FilmController {
         return filmService.findAll();
     }
 
-    @PostMapping()
+    @PostMapping
     public Film create(@RequestBody @Valid Film film) {
         log.debug("received POST /films with body {}", film);
         return filmService.create(film);
     }
 
-    @PutMapping()
+    @PutMapping
     public Film update(@RequestBody @Valid Film film) {
         log.debug("received PUT /films with body {}", film);
         return filmService.update(film);
@@ -54,8 +54,8 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> bestByLikes(@RequestParam(name = "count", defaultValue = "10", required = false) int count) {
+    public List<Film> getPopular(@RequestParam(name = "count", defaultValue = "10", required = false) int count) {
         log.debug("received GET /films/popular, count={}", count);
-        return filmService.bestByLikes(count);
+        return filmService.getPopular(count);
     }
 }

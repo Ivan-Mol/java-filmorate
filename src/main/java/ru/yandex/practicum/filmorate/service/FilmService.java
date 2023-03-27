@@ -10,21 +10,23 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
-    private static final Comparator<Film> BY_LIKES =
-            Comparator.comparing(film -> film.getLikes().size(), Comparator.reverseOrder());
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
+    private static void validate(Film film) {
+        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            throw new ValidationException("Wrong ReleaseDate");
+        }
+    }
+
     public List<Film> findAll() {
-        return filmStorage.findAll();
+        return filmStorage.getAll();
     }
 
     public Film create(Film film) {
@@ -34,34 +36,30 @@ public class FilmService {
 
     public Film update(Film film) {
         validate(film);
+        filmStorage.get(film.getId());
         return filmStorage.update(film);
     }
 
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.get(filmId).addLike(userId);
+        userStorage.addLike(filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkUserExists(userId);
-        filmStorage.get(filmId).removeLike(userId);
+        userStorage.removeLike(filmId, userId);
     }
 
-    public List<Film> bestByLikes(int count) {
-        return filmStorage.findAll().stream()
-                .sorted(BY_LIKES)
-                .limit(count)
-                .collect(Collectors.toList());
+    public List<Film> getPopular(int count) {
+        if (count < 1) {
+            throw new ValidationException("Can not be less 1");
+        }
+        return filmStorage.getTopByLikes(count);
+
     }
 
     public Film getFilm(long id) {
         return filmStorage.get(id);
-    }
-
-    private static void validate(Film film) {
-        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            throw new ValidationException("Wrong ReleaseDate");
-        }
     }
 
     //throws RuntimeException if User doesn't exist
