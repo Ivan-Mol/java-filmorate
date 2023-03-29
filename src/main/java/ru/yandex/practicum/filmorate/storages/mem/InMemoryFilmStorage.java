@@ -1,17 +1,13 @@
 package ru.yandex.practicum.filmorate.storages.mem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -57,5 +53,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getTopByLikes(int count) {
         return null;
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendations(long userId) {
+        return Collections.emptyList();
     }
 }

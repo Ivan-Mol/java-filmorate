@@ -11,26 +11,19 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparing;
-import static java.util.Map.Entry.comparingByValue;
 
 @Primary
 @Component
 @Slf4j
 public class UserDbStorage implements UserStorage {
-    public static final double PERCENTAGE_SELECT_SIMILAR_USERS = 0.3;
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
 
     @Override
     public List<User> getAll() {
@@ -124,35 +117,7 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", filmId, userId);
     }
 
-
-    public Map<Long, List<Long>> getSimilarUser(long userId) {
-        String sql = "SELECT l2.user_id AS other_user_id, l2.film_id AS mutual_film " +
-                    "FROM likes AS l " +
-                    "JOIN likes AS l2 " +
-                        "ON l2.film_id = l.film_id " +
-                        "AND l2.user_id = l.user_id " +
-                    "WHERE l.user_id = ? " +
-                    "GROUP BY l2.user_id, l2.film_id";
-        Map<Long, List<Long>> similarUsersWithFilms = jdbcTemplate.query(sql, rs -> {
-            Map<Long, List<Long>> similarUserWithFilms = new HashMap<>();
-            while(rs.next()) {
-                long otherUserID = rs.getLong("other_user_id");
-                List<Long> otherUserFilms = similarUserWithFilms.getOrDefault(otherUserID, new ArrayList<>());
-                otherUserFilms.add(rs.getLong("mutual_film"));
-            }
-            return similarUserWithFilms;
-        });
-        similarUsersWithFilms.entrySet().stream().sorted(comparingByValue(comparing(List::size)));
-        long numTotalSimilarUsers = Math.round(similarUsersWithFilms.size() * PERCENTAGE_SELECT_SIMILAR_USERS);
-        return similarUsersWithFilms.entrySet().stream()
-                .limit(numTotalSimilarUsers).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    @Override
     public List<Film> getFilmsRecommendations(long userId) {
-
-        return getSimilarUser(userId);
+        return Collections.emptyList();
     }
-
-
 }

@@ -68,7 +68,7 @@ public class UserController {
 
     @GetMapping("{userId}/recommendations")
     public List<Film> getFilmsRecommendations(@PathVariable long userId) {
-        log.debug("/getFilmsRecommendations");
-        return userService.getFilmsRecommendations();
+        log.debug("received GET /users/{userId}/recommendations");
+        return userService.getFilmsRecommendations(userId);
     }
 }
