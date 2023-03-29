@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,7 +19,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 @Primary
@@ -65,6 +70,13 @@ public class FilmDbStorage implements FilmStorage {
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
         return getFilms(getTopFilmsByLikesQuery);
     }
+
+    @Override
+    public void deleteById(Long id) {
+        String sqlQuery = "DELETE FROM films WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
 
     private List<Film> getFilms(String query) {
         Map<Long, Film> films = new HashMap<>();

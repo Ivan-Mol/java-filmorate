@@ -58,4 +58,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getTopByLikes(int count) {
         return null;
     }
+
+    @Override
+    public void deleteById(Long id) {
+
+    }
 }
