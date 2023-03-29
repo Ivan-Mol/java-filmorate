@@ -114,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(keyHolder.getKeyAs(Long.class));
         log.debug("Film created {}", film);
-        replaceFilmGernes(film);
+        replaceFilmGenres(film);
         return get(film.getId());
     }
 
@@ -129,15 +129,15 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
         log.debug("Film updated {}", film);
-        replaceFilmGernes(film);
+        replaceFilmGenres(film);
         return get(film.getId());
     }
 
-    private void replaceFilmGernes(Film film) {
+    private void replaceFilmGenres(Film film) {
         Long filmId = film.getId();
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
         List<Genre> genresList = film.getGenres();
-        if (film.getGenres()!=null && !film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             String addGenresQuery = "MERGE INTO film_genres (film_id,genre_id) VALUES (?,?)";
             jdbcTemplate.batchUpdate(addGenresQuery, new BatchPreparedStatementSetter() {
                 @Override
