@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
@@ -85,4 +86,8 @@ public class UserService {
     }
 
 
+    public List<Film> getFilmsRecommendations() {
+        log.debug("/getFilmsRecommendations");
+        userStorage.get
+    }
 }
