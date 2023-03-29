@@ -6,6 +6,8 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
@@ -86,6 +88,16 @@ public class UserService {
     }
 
     public List<Event> getUserEvents(long userId) {
-        return null; //TODO продолжить
+        log.debug("/getUserEvents");
+        checkUserExists(userId);
+        return userStorage.getUserEvents(userId);
     }
+
+    public void removeUserEvents(long userId){
+        userStorage.removeUserEvents(userId);
+    };
+
+    public void addEvent(EventType eventType, OperationType operation, long userId, long entityId){
+        userStorage.addEvent(eventType, operation, userId, entityId);
+    };
 }

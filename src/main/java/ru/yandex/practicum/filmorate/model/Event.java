@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 @Setter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
+@NoArgsConstructor
 public class Event {
     private Long eventId;
     private Timestamp timestamp;
