@@ -9,12 +9,15 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.db.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storages.db.UserDbStorage;
 
+import javax.validation.constraints.AssertFalse;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -22,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class FilmDbStorageTest {
     private final FilmDbStorage filmStorage;
+    private final UserDbStorage userStorage;
 
     @Test
     void get() {
@@ -71,6 +75,20 @@ class FilmDbStorageTest {
         assertEquals(expectedFilm.getName(), actualFilm.getName());
     }
 
+//    @Test
+//    void removeFilmByID(){
+//        assertTrue(filmStorage.getAll().isEmpty());
+//        Film testFilm1 = createTestFilm1();
+//        filmStorage.create(testFilm1);
+//        assertFalse(filmStorage.getAll().isEmpty());
+//        filmStorage.deleteById(testFilm1.getId());
+//        assertTrue(filmStorage.getAll().isEmpty());
+//        User testUser = createTestUser1();
+//        Long userId = userStorage.create(testUser).getId();
+//        userStorage.addLike(testFilm1.getId(),userId);
+//
+//    }
+
     private Film createTestFilm1() {
         Film film = new Film();
         film.setId(1L);
@@ -100,5 +118,14 @@ class FilmDbStorageTest {
         Mpa rating = new Mpa(2L, "PG");
         film.setMpa(rating);
         return film;
+    }
+
+    private User createTestUser1() {
+        User user = new User();
+        user.setEmail("user1@gmail.com");
+        user.setLogin("user1");
+        user.setName("user1");
+        user.setBirthday(LocalDate.of(1990, 11, 12));
+        return user;
     }
 }
