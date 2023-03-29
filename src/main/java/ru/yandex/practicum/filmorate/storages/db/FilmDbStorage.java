@@ -147,8 +147,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsRecommendations(long userId) {
         log.debug("/getFilmsRecommendations");
-        // SELECT... получение списка фильмов у наиболее схожего по пред-ниям с userID др.юзера
-        // за минусом фильмов, которые лайкнуты и обоих юзеров
+        /* SELECT... получение списка фильмов у наиболее схожего по пред-ниям с userID др.юзера
+           за минусом фильмов, которые лайкнуты и обоих юзеров */
         String sql = "SELECT l3.film_id AS id, " +
                             "f.name, " +
                             "f.description, " +
