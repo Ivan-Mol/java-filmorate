@@ -71,6 +71,7 @@ public class FilmService {
     private void checkUserExists(long userId) {
         userStorage.get(userId);
     }
+
     private void checkFilmExists(long id) {
         filmStorage.get(id);
     }
