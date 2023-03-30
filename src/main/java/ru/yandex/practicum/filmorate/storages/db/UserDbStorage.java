@@ -145,13 +145,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addEvent(EventType eventType, OperationType operation, long userId, long entityId) {
-        String sql = "INSERT INTO events (event_type, operation, user_id, entity_id) " +
-                    "VALUES (" + eventType + ", " + operation + ", " + userId + ", " + entityId + ")";
-        jdbcTemplate.update(sql);
+        log.debug("/addEvent");
+        String sql = "INSERT INTO events (event_type, operation, user_id, entity_id) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sql, eventType.name(), operation.name(), userId, entityId);
     }
 
     @Override
     public void removeUserEvents(long userId) {
+        log.debug("/removeUserEvents");
         String sql = "DELETE FROM events WHERE user_id = " + userId;
         jdbcTemplate.update(sql);
     }
