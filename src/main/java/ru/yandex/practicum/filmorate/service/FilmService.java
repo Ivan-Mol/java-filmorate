@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
@@ -19,6 +20,8 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
+    private final DirectorService directorService;
+
     private static void validate(Film film) {
         if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
             throw new ValidationException("Wrong ReleaseDate");
@@ -26,17 +29,22 @@ public class FilmService {
     }
 
     public List<Film> findAll() {
-        return filmStorage.getAll();
+        List<Film> films = filmStorage.getAll();
+        return directorService.getListDirectors(films);
     }
 
     public Film create(Film film) {
         validate(film);
-        return filmStorage.create(film);
+        Film createFilm = filmStorage.create(film);
+        film.setId(film.getId());
+        directorService.addDirectorToBd(film);
+        return createFilm;
     }
 
     public Film update(Film film) {
         validate(film);
         filmStorage.get(film.getId());
+        directorService.addDirectorToBd(film);
         return filmStorage.update(film);
     }
 
@@ -59,7 +67,8 @@ public class FilmService {
     }
 
     public Film getFilm(long id) {
-        return filmStorage.get(id);
+        Film film = filmStorage.get(id);
+        return directorService.getDirector(film);
     }
 
     //throws RuntimeException if User doesn't exist

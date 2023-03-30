@@ -31,10 +31,13 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
-    @NotNull
-    private Director director;
+    private List<Director> directors = new ArrayList<>();
 
     public void addGenre(Genre genre) {
         genres.add(genre);
+    }
+
+    public void  addDirector (List<Director> director) {
+        directors.addAll(director);
     }
 }
