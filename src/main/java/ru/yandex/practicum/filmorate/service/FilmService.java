@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -68,15 +70,20 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
-        return filmStorage.getCommonFilms(userId, friendId);
+        User user = checkUserExists(userId);
+        User friend = checkUserExists(friendId);
+        if (Objects.nonNull(user) && Objects.nonNull(friend)) {
+            return filmStorage.getCommonFilms(userId, friendId);
+        }
+        return null;
     }
 
     //throws RuntimeException if User doesn't exist
-    private void checkUserExists(long userId) {
-        userStorage.get(userId);
+    private User checkUserExists(long userId) {
+        return userStorage.get(userId);
     }
 
-    private void checkFilmExists(long id) {
-        filmStorage.get(id);
+    private Film checkFilmExists(long id) {
+        return filmStorage.get(id);
     }
 }
