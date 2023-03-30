@@ -20,4 +20,6 @@ public interface UserStorage {
     void addLike(long filmId, long userId);
 
     void removeLike(long filmId, long userId);
+
+    void deleteById(Long id);
 }

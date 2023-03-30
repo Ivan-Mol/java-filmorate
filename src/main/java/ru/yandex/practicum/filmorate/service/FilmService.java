@@ -62,8 +62,17 @@ public class FilmService {
         return filmStorage.get(id);
     }
 
+    public void deleteFilm(Long id) {
+        checkFilmExists(id);
+        filmStorage.deleteById(id);
+    }
+
     //throws RuntimeException if User doesn't exist
     private void checkUserExists(long userId) {
         userStorage.get(userId);
+    }
+
+    private void checkFilmExists(long id) {
+        filmStorage.get(id);
     }
 }

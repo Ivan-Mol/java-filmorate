@@ -18,7 +18,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 @Primary
@@ -66,6 +70,13 @@ public class FilmDbStorage implements FilmStorage {
         return getFilms(getTopFilmsByLikesQuery);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        String sqlQuery = "DELETE FROM films WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
+
     private List<Film> getFilms(String query) {
         Map<Long, Film> films = new HashMap<>();
         jdbcTemplate.query(query, rs -> {
@@ -103,13 +114,14 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(keyHolder.getKeyAs(Long.class));
         log.debug("Film created {}", film);
-        replaceFilmGernes(film);
+        replaceFilmGenres(film);
         return get(film.getId());
     }
 
     @Override
     public Film update(Film film) {
-        String updateFilmQuery = "UPDATE FILMS SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+        String updateFilmQuery = "UPDATE FILMS SET name = ?, description = ?, release_date = ?, duration = ?, " +
+                "mpa_id = ? WHERE id = ?";
         jdbcTemplate.update(updateFilmQuery,
                 film.getName(),
                 film.getDescription(),
@@ -118,15 +130,15 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
         log.debug("Film updated {}", film);
-        replaceFilmGernes(film);
+        replaceFilmGenres(film);
         return get(film.getId());
     }
 
-    private void replaceFilmGernes(Film film) {
+    private void replaceFilmGenres(Film film) {
         Long filmId = film.getId();
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
         List<Genre> genresList = film.getGenres();
-        if (film.getGenres()!=null && !film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             String addGenresQuery = "MERGE INTO film_genres (film_id,genre_id) VALUES (?,?)";
             jdbcTemplate.batchUpdate(addGenresQuery, new BatchPreparedStatementSetter() {
                 @Override

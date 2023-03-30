@@ -15,4 +15,6 @@ public interface FilmStorage {
     Film update(Film film);
 
     List<Film> getTopByLikes(int count);
+
+    void deleteById(Long id);
 }
