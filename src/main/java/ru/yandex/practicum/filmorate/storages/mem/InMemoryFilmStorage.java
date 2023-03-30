@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -61,5 +58,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteById(Long id) {
 
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendations(long userId) {
+        return Collections.emptyList();
     }
 }
