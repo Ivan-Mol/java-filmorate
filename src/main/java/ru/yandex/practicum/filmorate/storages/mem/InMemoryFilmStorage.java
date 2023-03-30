@@ -58,4 +58,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getTopByLikes(int count) {
         return null;
     }
+
+    @Override
+    public List<Film> getSortDirectorFilms(Long directorId, String sort) {
+        return null;
+    }
 }

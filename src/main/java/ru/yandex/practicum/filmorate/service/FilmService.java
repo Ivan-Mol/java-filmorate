@@ -35,17 +35,18 @@ public class FilmService {
 
     public Film create(Film film) {
         validate(film);
-        Film createFilm = filmStorage.create(film);
+        filmStorage.create(film);
         film.setId(film.getId());
         directorService.addDirectorToBd(film);
-        return createFilm;
+        return getFilm(film.getId());
     }
 
     public Film update(Film film) {
         validate(film);
         filmStorage.get(film.getId());
         directorService.addDirectorToBd(film);
-        return filmStorage.update(film);
+        filmStorage.update(film);
+        return getFilm(film.getId());
     }
 
     public void addLike(long filmId, long userId) {
@@ -69,6 +70,12 @@ public class FilmService {
     public Film getFilm(long id) {
         Film film = filmStorage.get(id);
         return directorService.getDirector(film);
+    }
+
+    public List<Film> getSortDirectorFilms(Long directorId, String sort) {
+        directorService.get(directorId);
+        List<Film> films = filmStorage.getSortDirectorFilms(directorId, sort);
+        return directorService.getListDirectors(films);
     }
 
     //throws RuntimeException if User doesn't exist

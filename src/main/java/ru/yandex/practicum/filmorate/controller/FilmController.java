@@ -58,4 +58,9 @@ public class FilmController {
         log.debug("received GET /films/popular, count={}", count);
         return filmService.getPopular(count);
     }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getSortDirectorFilms(@PathVariable("directorId") Long directorId, @RequestParam("sortBy") String sortBy) {
+        return filmService.getSortDirectorFilms(directorId, sortBy);
+    }
 }
