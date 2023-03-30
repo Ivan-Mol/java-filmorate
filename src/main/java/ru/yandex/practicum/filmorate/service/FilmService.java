@@ -67,6 +67,10 @@ public class FilmService {
         filmStorage.deleteById(id);
     }
 
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
     //throws RuntimeException if User doesn't exist
     private void checkUserExists(long userId) {
         userStorage.get(userId);

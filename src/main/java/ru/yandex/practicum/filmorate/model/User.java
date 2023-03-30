@@ -37,9 +37,4 @@ public class User {
     public void removeFriendID(Long friendID) {
         friends.remove(friendID);
     }
-
-    public void setFriendsList(List<Long> friendsIds) {
-        friends.clear();
-        friends.addAll(friendsIds);
-    }
 }

@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
@@ -18,6 +20,8 @@ import java.util.List;
 @Setter
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class Film {
     private Long id;
     @NotBlank(message = "Name is empty")
@@ -31,6 +35,15 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
+
+    public Film(Long id, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
 
     public void addGenre(Genre genre) {
         genres.add(genre);

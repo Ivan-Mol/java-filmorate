@@ -13,11 +13,15 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
+import ru.yandex.practicum.filmorate.storages.GenreStorage;
+import ru.yandex.practicum.filmorate.storages.MpaStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +35,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
 
     @Override
     public List<Film> getAll() {
@@ -189,5 +195,30 @@ public class FilmDbStorage implements FilmStorage {
                                             "FROM likes AS l4 " +
                                             "WHERE l4.user_id = " + userId + ")";
         return getFilms(sql);
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("/getCommonFilms");
+        String sql = "SELECT f.*, m.name MPA_NAME " +
+                "FROM FILMS f " +
+                "INNER JOIN MPA m ON f.MPA_ID = m.ID " +
+                "INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
+                "INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
+                "WHERE l1.USER_ID = ? AND l2.USER_ID = ? " +
+                "GROUP BY f.ID, m.name " +
+                "ORDER BY COUNT(l1.USER_ID) DESC ";
+
+        return jdbcTemplate.query(sql, FilmDbStorage::makeFilm, userId, friendId);
+    }
+
+    private static Film makeFilm(ResultSet rs, int i) throws SQLException {
+        long id = rs.getLong("ID");
+        String name = rs.getString("NAME");
+        String description = rs.getString("DESCRIPTION");
+        LocalDate releaseDate = rs.getDate("RELEASE_DATE").toLocalDate();
+        int duration = rs.getInt("DURATION");
+        int mpaId = rs.getInt("MPA_ID");
+        String mpaName = rs.getString("MPA_NAME");
+        return new Film(id, name, description, releaseDate, duration, new Mpa(mpaId, mpaName));
     }
 }
