@@ -14,9 +14,7 @@ import java.util.*;
 public class InMemoryUserStorage implements UserStorage {
     private static long idCounter = 0;
     private final Map<Long, User> users = new HashMap<>();
-
     private final Map<Long, Long> likes = new TreeMap<>();
-
 
     @Override
     public List<User> getAll() {
