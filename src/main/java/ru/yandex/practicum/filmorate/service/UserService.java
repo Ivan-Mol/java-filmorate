@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.OperationType;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.util.HashSet;
@@ -25,6 +27,7 @@ import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     private static void validate(User user) {
         if (user.getLogin().contains(" ")) {
@@ -102,5 +105,11 @@ public class UserService {
         log.debug("/getUserEvents");
         checkUserExists(userId);
         return userStorage.getUserEvents(userId);
+    }
+
+    public List<Film> getFilmsRecommendations(long userId) {
+        log.debug("/getFilmsRecommendations");
+        checkUserExists(userId);
+        return filmStorage.getFilmsRecommendations(userId);
     }
 }
