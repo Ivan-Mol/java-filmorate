@@ -7,7 +7,7 @@ MERGE INTO genres (id, name)
            (6, 'Боевик');
 
 
-INSERT INTO mpa (id, name)
+MERGE INTO mpa (id, name)
     VALUES (1, 'G'),
            (2, 'PG'),
            (3, 'PG-13'),
