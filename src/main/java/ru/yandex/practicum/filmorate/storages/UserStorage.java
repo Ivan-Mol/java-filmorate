@@ -28,5 +28,7 @@ public interface UserStorage {
 
     void addEvent(EventType eventType, OperationType operation, long userId, long entityId);
 
+    void deleteById(Long id);
+
     void removeUserEvents(long userId);
 }

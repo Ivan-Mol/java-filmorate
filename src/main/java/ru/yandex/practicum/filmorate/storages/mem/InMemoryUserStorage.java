@@ -83,6 +83,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public void deleteById(Long id) {
+    }
+
+    @Override
     public void addEvent(EventType eventType, OperationType operation, long userId, long entityId) {};
 
     @Override

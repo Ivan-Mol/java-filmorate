@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.db;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,13 +28,9 @@ import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
 @Primary
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
 
     @Override
     public List<User> getAll() {
@@ -147,6 +144,11 @@ public class UserDbStorage implements UserStorage {
             }
             return events;
         });
+    }
+    @Override
+    public void deleteById(Long id) {
+        String sqlQuery = "DELETE FROM users where id = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     @Override
