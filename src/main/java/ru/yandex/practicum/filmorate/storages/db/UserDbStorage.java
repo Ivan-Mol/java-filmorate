@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 @Primary
