@@ -153,7 +153,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void removeUserEvents(long userId) {
         log.debug("/removeUserEvents");
-        String sql = "DELETE FROM events WHERE user_id = " + userId;
-        jdbcTemplate.update(sql);
+        String sql = "DELETE FROM events WHERE user_id = ?";
+        jdbcTemplate.update(sql, userId);
     }
 }
