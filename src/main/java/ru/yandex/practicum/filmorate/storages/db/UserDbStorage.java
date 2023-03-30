@@ -19,11 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.*;
 
-import static ru.yandex.practicum.filmorate.model.EventType.FRIEND;
-import static ru.yandex.practicum.filmorate.model.EventType.LIKE;
-import static ru.yandex.practicum.filmorate.model.OperationType.ADD;
-import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
-
 
 @Primary
 @Component
@@ -105,26 +100,22 @@ public class UserDbStorage implements UserStorage {
     public void addFriend(long userId, long friendId) {
         jdbcTemplate.update("INSERT INTO friends (user_id, friend_id) values (?,? )",
                 userId, friendId);
-        addEvent(FRIEND, ADD, userId, friendId);
         log.debug("Friend added {}", friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id =?", userId, friendId);
-        addEvent(FRIEND, REMOVE, userId, friendId);
     }
 
     @Override
     public void addLike(long filmId, long userId) {
         String sql = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
-        addEvent(LIKE, ADD, userId, filmId);
     }
 
     @Override
     public void removeLike(long filmId, long userId) {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", filmId, userId);
-        addEvent(LIKE, REMOVE, userId, filmId);
     }
 
     @Override
@@ -158,7 +149,7 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sql);
     }
 
-    @Override //TODO возможно не нужен так как нет функционала
+    @Override
     public void removeUserEvents(long userId) {
         String sql = "DELETE FROM events WHERE user_id = " + userId;
         jdbcTemplate.update(sql);

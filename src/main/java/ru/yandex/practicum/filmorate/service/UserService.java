@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.model.EventType.FRIEND;
+import static ru.yandex.practicum.filmorate.model.OperationType.ADD;
+import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -37,12 +41,14 @@ public class UserService {
         checkUserExists(userID);
         checkUserExists(friendID);
         userStorage.addFriend(userID, friendID);
+        userStorage.addEvent(FRIEND, ADD, userID, friendID);
     }
 
     public void removeFriend(long userID, long friendID) {
         checkUserExists(userID);
         checkUserExists(friendID);
         userStorage.removeFriend(userID, friendID);
+        userStorage.addEvent(FRIEND, REMOVE, userID, friendID);
     }
 
     public List<User> findAll() {
@@ -77,13 +83,13 @@ public class UserService {
         return user;
     }
 
-
     public User getUser(Long id) {
         return userStorage.get(id);
     }
 
     public void deleteUserById(Long id) {
        checkUserExists(id);
+       userStorage.removeUserEvents(id);
        userStorage.deleteById(id);
     }
 
@@ -97,12 +103,4 @@ public class UserService {
         checkUserExists(userId);
         return userStorage.getUserEvents(userId);
     }
-
-    public void removeUserEvents(long userId){
-        userStorage.removeUserEvents(userId);
-    };
-
-    public void addEvent(EventType eventType, OperationType operation, long userId, long entityId){
-        userStorage.addEvent(eventType, operation, userId, entityId);
-    };
 }
