@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.db;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,18 +14,18 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Primary
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
 
     @Override
     public List<User> getAll() {
@@ -116,6 +117,12 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void removeLike(long filmId, long userId) {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ? AND user_id = ?", filmId, userId);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        String sqlQuery = "DELETE FROM users where id = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
 }
