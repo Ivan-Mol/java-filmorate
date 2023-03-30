@@ -79,10 +79,13 @@ public class UserService {
         return userStorage.get(id);
     }
 
+    public void deleteUserById(Long id) {
+       checkUserExists(id);
+       userStorage.deleteById(id);
+    }
+
     //throws RuntimeException if User doesn't exist
     private void checkUserExists(long userId) {
         userStorage.get(userId);
     }
-
-
 }
