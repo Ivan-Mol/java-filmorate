@@ -75,4 +75,9 @@ public class FilmService {
     private void checkFilmExists(long id) {
         filmStorage.get(id);
     }
+
+    public List<Film> search(String query, String by) {
+        List<Film> films = filmStorage.search(query, by);
+        return films;
+    }
 }

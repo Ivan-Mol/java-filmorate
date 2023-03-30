@@ -190,4 +190,9 @@ public class FilmDbStorage implements FilmStorage {
                                             "WHERE l4.user_id = " + userId + ")";
         return getFilms(sql);
     }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        return null;
+    }
 }
