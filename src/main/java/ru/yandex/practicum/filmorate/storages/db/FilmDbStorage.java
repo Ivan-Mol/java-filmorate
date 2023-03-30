@@ -193,6 +193,21 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> search(String query, String by) {
-        return null;
+        List<Film> filmList = new ArrayList<>();
+        switch (by) {
+            case "director":
+               // filmList = jdbcTemplate.query();
+                break;
+            case "title":
+               // filmList = jdbcTemplate.query();
+                break;
+            case "director,title":
+                // filmList = jdbcTemplate.query();
+                break;
+            case "title,director":
+               // filmList = jdbcTemplate.query();
+                break;
+        }
+        return filmList;
     }
 }
