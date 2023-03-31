@@ -18,11 +18,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 @Primary
@@ -76,9 +72,8 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, id);
     }
 
-
     private List<Film> getFilms(String query) {
-        Map<Long, Film> films = new HashMap<>();
+        Map<Long, Film> films = new LinkedHashMap<>();
         jdbcTemplate.query(query, rs -> {
             long id = rs.getLong("id");
             if (!films.containsKey(id)) {
@@ -189,5 +184,37 @@ public class FilmDbStorage implements FilmStorage {
                                             "FROM likes AS l4 " +
                                             "WHERE l4.user_id = " + userId + ")";
         return getFilms(sql);
+    }
+
+    @Override
+    public List<Film> getSortDirectorFilms(Long directorId, String sort) {
+        String sqlSortDirectorFilmsByYear = "SELECT f.*, m.name AS mpa_name, g.id genre_id, g.name AS genre_name " +
+                "FROM films AS f LEFT JOIN mpa AS m ON f.mpa_id = m.id " +
+                "LEFT JOIN film_genres AS fg ON f.id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.id " +
+                "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
+                "WHERE fd.director_id = " + directorId + " ORDER BY f.release_date";
+        String sqlSortDirectorFilmsByLike = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
+                " FROM (SELECT f.* FROM FILMS f" +
+                "   LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                "   GROUP BY f.ID" +
+                "   ORDER BY COUNT(l.USER_ID) DESC" +
+                "   ) f" +
+                " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
+                " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
+                " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID " +
+                "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
+                "WHERE fd.director_id =" + directorId;
+
+        switch (sort) {
+            case "year":
+                log.debug("Film with director {} sort by {}", directorId, sort);
+                return getFilms(sqlSortDirectorFilmsByYear);
+            case "likes":
+                log.debug("Film with director {} sort by {}", directorId, sort);
+                return getFilms(sqlSortDirectorFilmsByLike);
+            default:
+                throw new NotFoundException("This sort type is not supported");
+        }
     }
 }

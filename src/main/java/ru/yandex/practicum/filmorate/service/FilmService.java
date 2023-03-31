@@ -19,6 +19,8 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
+    private final DirectorService directorService;
+
     private static void validate(Film film) {
         if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
             throw new ValidationException("Wrong ReleaseDate");
@@ -26,18 +28,24 @@ public class FilmService {
     }
 
     public List<Film> findAll() {
-        return filmStorage.getAll();
+        List<Film> films = filmStorage.getAll();
+        return directorService.getListDirectors(films);
     }
 
     public Film create(Film film) {
         validate(film);
-        return filmStorage.create(film);
+        filmStorage.create(film);
+        film.setId(film.getId());
+        directorService.addDirectorToBd(film);
+        return getFilm(film.getId());
     }
 
     public Film update(Film film) {
         validate(film);
         filmStorage.get(film.getId());
-        return filmStorage.update(film);
+        directorService.addDirectorToBd(film);
+        filmStorage.update(film);
+        return getFilm(film.getId());
     }
 
     public void addLike(long filmId, long userId) {
@@ -54,17 +62,25 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("Can not be less 1");
         }
-        return filmStorage.getTopByLikes(count);
+        List<Film> films =filmStorage.getTopByLikes(count);
+        return directorService.getListDirectors(films);
 
     }
 
     public Film getFilm(long id) {
-        return filmStorage.get(id);
+        Film film = filmStorage.get(id);
+        return directorService.getDirector(film);
     }
 
     public void deleteFilm(Long id) {
         checkFilmExists(id);
         filmStorage.deleteById(id);
+    }
+
+    public List<Film> getSortDirectorFilms(Long directorId, String sort) {
+        directorService.get(directorId);
+        List<Film> films = filmStorage.getSortDirectorFilms(directorId, sort);
+        return directorService.getListDirectors(films);
     }
 
     //throws RuntimeException if User doesn't exist
