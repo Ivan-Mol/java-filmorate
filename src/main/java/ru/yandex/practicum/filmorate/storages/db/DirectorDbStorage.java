@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storages.db;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,6 +28,7 @@ import java.util.Map;
 @Repository
 @Primary
 @RequiredArgsConstructor
+@Slf4j
 public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -34,6 +36,7 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getAll() {
         String sqlQuery = "SELECT * FROM directors";
 
+        log.debug("Get directors list");
         return jdbcTemplate.query(sqlQuery, this::mapRowToDirector);
     }
 
@@ -42,6 +45,7 @@ public class DirectorDbStorage implements DirectorStorage {
         String sqlQuery = "SELECT * FROM directors WHERE director_id = ?";
         List<Director> directors = jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
         if (!directors.isEmpty()) {
+            log.debug("Get director by id {}", id);
             return directors.get(0);
         } else {
             throw new NotFoundException("Director not found");
@@ -61,26 +65,33 @@ public class DirectorDbStorage implements DirectorStorage {
         if (keyHolder.getKey() != null) {
             director.setId((Long) keyHolder.getKey());
         }
+        log.debug("Create director {}", director);
         return director;
     }
 
     @Override
     public Director update(Director director) {
         String sqlQuery = "UPDATE directors SET name = ? WHERE director_id = ?";
+
         jdbcTemplate.update(sqlQuery, director.getName(), director.getId());
+        log.debug("Update director {}", director);
         return director;
     }
 
     @Override
     public void delete(Long id) {
         String sqlQuery = "DELETE FROM directors WHERE director_id = ?";
+
+        log.debug("Delete director {}", id);
         jdbcTemplate.update(sqlQuery, id);
     }
 
     @Override
     public void addFilmDirector(Film film) {
         Long filmId = film.getId();
+
         jdbcTemplate.update("DELETE FROM film_directors WHERE film_id = ?", filmId);
+
         String sqlQuery = "MERGE INTO film_directors (director_id, film_id) VALUES(?, ?)";
         List<Director> directors = film.getDirectors();
         jdbcTemplate.batchUpdate(sqlQuery, new BatchPreparedStatementSetter() {
@@ -95,7 +106,7 @@ public class DirectorDbStorage implements DirectorStorage {
                 return directors.size();
             }
         });
-
+        log.debug("Add director to Bd from Film {}", film);
     }
 
     @Override
@@ -106,6 +117,7 @@ public class DirectorDbStorage implements DirectorStorage {
                 "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
                 "WHERE fd.film_id IN (:filmIds)";
         NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(jdbcTemplate);
+
         template.query(sqlQuery, source, rs -> {
             Long filmId = rs.getLong("film_id");
             String directorName = rs.getString("name");
@@ -123,12 +135,12 @@ public class DirectorDbStorage implements DirectorStorage {
                 }
             }
         });
+        log.debug("Get directors from BD");
         return filmDirectors;
     }
 
     private Director mapRowToDirector(ResultSet rs, int rowNum) throws SQLException {
+        log.debug("Row mapper director");
         return new Director(rs.getLong("director_id"), rs.getString("name"));
     }
-
-
 }

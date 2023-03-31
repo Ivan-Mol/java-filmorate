@@ -74,7 +74,6 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN genres AS g ON fg.genre_id = g.id " +
                 "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
                 "WHERE fd.director_id = " + directorId + " ORDER BY f.release_date";
-
         String sqlSortDirectorFilmsByLike = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
                 " FROM (SELECT f.* FROM FILMS f" +
                 "   LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
@@ -89,15 +88,19 @@ public class FilmDbStorage implements FilmStorage {
 
         switch (sort) {
             case "year":
+                log.debug("Film with director {} sort by {}", directorId, sort);
                 return getFilms(sqlSortDirectorFilmsByYear);
             case "likes":
+                log.debug("Film with director {} sort by {}", directorId, sort);
                 return getFilms(sqlSortDirectorFilmsByLike);
-            default: throw new NotFoundException("Not found");
+            default:
+                throw new NotFoundException("This sort type is not supported");
+
         }
     }
 
     private List<Film> getFilms(String query) {
-        Map<Long, Film> films = new HashMap<>();
+        Map<Long, Film> films = new LinkedHashMap<>();
         jdbcTemplate.query(query, rs -> {
             long id = rs.getLong("id");
             if (!films.containsKey(id)) {
@@ -156,7 +159,7 @@ public class FilmDbStorage implements FilmStorage {
         Long filmId = film.getId();
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
         List<Genre> genresList = film.getGenres();
-        if (film.getGenres()!=null && !film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             String addGenresQuery = "MERGE INTO film_genres (film_id,genre_id) VALUES (?,?)";
             jdbcTemplate.batchUpdate(addGenresQuery, new BatchPreparedStatementSetter() {
                 @Override
@@ -174,9 +177,3 @@ public class FilmDbStorage implements FilmStorage {
         log.debug("Genres {} for film {} updated", genresList, filmId);
     }
 }
-//    String sqlSortDirectorFilmsByYear = "SELECT f.*, m.name AS mpa_name, g.id genre_id, g.name AS genre_name " +
-//            "FROM films AS f LEFT JOIN mpa AS m ON f.mpa_id = m.id " +
-//            "LEFT JOIN film_genres AS fg ON f.id = fg.film_id " +
-//            "LEFT JOIN genres AS g ON fg.genre_id = g.id " +
-//            "LEFT JOIN film_directors AS fd ON f.id = fd.film_id " +
-//            "WHERE fd.director_id = " + directorId + " ORDER BY f.release_date";

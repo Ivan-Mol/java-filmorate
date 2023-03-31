@@ -39,13 +39,11 @@ public class DirectorService {
     }
 
     public void addDirectorToBd(Film film) {
-//        if (!film.getDirectors().isEmpty() && film.getDirectors() != null) {
         directorStorage.addFilmDirector(film);
-//        }
     }
 
     public List<Film> getListDirectors(List<Film> films) {
-        List<Long> ids = new ArrayList<>(); //films.stream().map(Film::getId).collect(Collectors.toList());
+        List<Long> ids = new ArrayList<>();
         if (!films.isEmpty()) {
             for (Film film : films) {
                 ids.add(film.getId());

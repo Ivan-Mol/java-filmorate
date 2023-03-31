@@ -63,7 +63,8 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("Can not be less 1");
         }
-        return filmStorage.getTopByLikes(count);
+        List<Film> films =filmStorage.getTopByLikes(count);
+        return directorService.getListDirectors(films);
 
     }
 
