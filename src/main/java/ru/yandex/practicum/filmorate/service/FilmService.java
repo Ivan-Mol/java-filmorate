@@ -18,7 +18,6 @@ import java.util.List;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
     private final DirectorService directorService;
 
     private static void validate(Film film) {
@@ -62,9 +61,8 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("Can not be less 1");
         }
-        List<Film> films =filmStorage.getTopByLikes(count);
+        List<Film> films = filmStorage.getTopByLikes(count);
         return directorService.getListDirectors(films);
-
     }
 
     public Film getFilm(long id) {
