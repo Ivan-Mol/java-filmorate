@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -11,7 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Event {
     private Long eventId;
-    private Timestamp timestamp;
+    private Long timestamp;
     private EventType eventType;
     private OperationType operation;
     private Long userId;

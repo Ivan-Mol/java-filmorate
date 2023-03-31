@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.sql.*;
 import java.sql.Date;
+import java.time.Instant;
 import java.util.*;
 
 
@@ -128,11 +129,12 @@ public class UserDbStorage implements UserStorage {
             while (rs.next()) {
                 Event event = new Event();
                 event.setEventId(rs.getLong("id"));
-                event.setTimestamp(rs.getTimestamp("timestamp"));
+                event.setTimestamp(rs.getLong("timestamp"));
                 event.setEventType(EventType.valueOf(rs.getString("event_type")));
                 event.setOperation(OperationType.valueOf(rs.getString("operation")));
                 event.setUserId(rs.getLong("user_id"));
                 event.setEntityId(rs.getLong("entity_id"));
+                events.add(event);
             }
             return events;
         });
@@ -146,8 +148,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void addEvent(EventType eventType, OperationType operation, long userId, long entityId) {
         log.debug("/addEvent");
-        String sql = "INSERT INTO events (event_type, operation, user_id, entity_id) VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(sql, eventType.name(), operation.name(), userId, entityId);
+        String sql = "INSERT INTO events (timestamp, event_type, operation, user_id, entity_id) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, Instant.now().toEpochMilli(), eventType.name(), operation.name(), userId, entityId);
     }
 
     @Override
