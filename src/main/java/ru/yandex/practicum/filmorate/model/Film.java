@@ -37,7 +37,7 @@ public class Film {
         genres.add(genre);
     }
 
-    public void addDirector(List<Director> director) {
+    public void addDirectors(List<Director> director) {
         directors.addAll(director);
     }
 }

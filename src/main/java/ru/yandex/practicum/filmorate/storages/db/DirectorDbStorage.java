@@ -86,7 +86,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void addFilmDirector(Film film) {
+    public void replaceFilmDirectors(Film film) {
         Long filmId = film.getId();
 
         jdbcTemplate.update("DELETE FROM film_directors WHERE film_id = ?", filmId);
@@ -109,7 +109,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Map<Long, List<Director>> getFilmDirectors(List<Long> filmIds) {
+    public Map<Long, List<Director>> getDirectorsByFilmIds(List<Long> filmIds) {
         Map<Long, List<Director>> filmDirectors = new HashMap<>();
         SqlParameterSource source = new MapSqlParameterSource("filmIds", filmIds);
         String sqlQuery = "SELECT * FROM film_directors AS fd " +

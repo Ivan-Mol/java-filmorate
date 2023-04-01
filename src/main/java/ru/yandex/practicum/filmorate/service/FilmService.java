@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,21 +29,20 @@ public class FilmService {
 
     public List<Film> findAll() {
         List<Film> films = filmStorage.getAll();
-        return directorService.getListDirectors(films);
+        return directorService.getFilmsWithDirectors(films);
     }
 
     public Film create(Film film) {
         validate(film);
         filmStorage.create(film);
-        film.setId(film.getId());
-        directorService.addDirectorToBd(film);
+        directorService.replaceFilmDirectors(film);
         return getFilm(film.getId());
     }
 
     public Film update(Film film) {
         validate(film);
         filmStorage.get(film.getId());
-        directorService.addDirectorToBd(film);
+        directorService.replaceFilmDirectors(film);
         filmStorage.update(film);
         return getFilm(film.getId());
     }
@@ -62,12 +62,14 @@ public class FilmService {
             throw new ValidationException("Can not be less 1");
         }
         List<Film> films = filmStorage.getTopByLikes(count);
-        return directorService.getListDirectors(films);
+        return directorService.getFilmsWithDirectors(films);
     }
 
     public Film getFilm(long id) {
-        Film film = filmStorage.get(id);
-        return directorService.getDirector(film);
+        List<Film> films = new ArrayList<>();
+        films.add(filmStorage.get(id));
+        List<Film> filmWithDirector = directorService.getFilmsWithDirectors(films);
+        return filmWithDirector.get(0);
     }
 
     public void deleteFilm(Long id) {
@@ -77,8 +79,8 @@ public class FilmService {
 
     public List<Film> getSortDirectorFilms(Long directorId, String sort) {
         directorService.get(directorId);
-        List<Film> films = filmStorage.getSortDirectorFilms(directorId, sort);
-        return directorService.getListDirectors(films);
+        List<Film> films = filmStorage.getSortedFilmsByDirector(directorId, sort);
+        return directorService.getFilmsWithDirectors(films);
     }
 
     //throws RuntimeException if User doesn't exist

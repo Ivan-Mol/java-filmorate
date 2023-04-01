@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -187,7 +188,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getSortDirectorFilms(Long directorId, String sort) {
+    public List<Film> getSortedFilmsByDirector(Long directorId, String sort) {
         String sqlSortDirectorFilmsByYear = "SELECT f.*, m.name AS mpa_name, g.id genre_id, g.name AS genre_name " +
                 "FROM films AS f LEFT JOIN mpa AS m ON f.mpa_id = m.id " +
                 "LEFT JOIN film_genres AS fg ON f.id = fg.film_id " +
@@ -214,7 +215,7 @@ public class FilmDbStorage implements FilmStorage {
                 log.debug("Film with director {} sort by {}", directorId, sort);
                 return getFilms(sqlSortDirectorFilmsByLike);
             default:
-                throw new NotFoundException("This sort type is not supported");
+                throw new ValidationException("This sort type is not supported");
         }
     }
 }

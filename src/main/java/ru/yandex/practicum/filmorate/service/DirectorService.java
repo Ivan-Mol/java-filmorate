@@ -38,33 +38,23 @@ public class DirectorService {
         directorStorage.delete(id);
     }
 
-    public void addDirectorToBd(Film film) {
-        directorStorage.addFilmDirector(film);
+    public void replaceFilmDirectors(Film film) {
+        directorStorage.replaceFilmDirectors(film);
     }
 
-    public List<Film> getListDirectors(List<Film> films) {
+    public List<Film> getFilmsWithDirectors(List<Film> films) {
         List<Long> ids = new ArrayList<>();
         if (!films.isEmpty()) {
             for (Film film : films) {
                 ids.add(film.getId());
             }
-            Map<Long, List<Director>> directors = directorStorage.getFilmDirectors(ids);
+            Map<Long, List<Director>> directors = directorStorage.getDirectorsByFilmIds(ids);
             for (Film film : films) {
                 if (directors.containsKey(film.getId())) {
-                    film.addDirector(directors.get(film.getId()));
+                    film.addDirectors(directors.get(film.getId()));
                 }
             }
         }
         return films;
-    }
-
-    public Film getDirector(Film film) {
-        List<Long> ids = new ArrayList<>();
-        ids.add(film.getId());
-        Map<Long, List<Director>> directors = directorStorage.getFilmDirectors(ids);
-        if (directors.containsKey(film.getId())) {
-            film.addDirector(directors.get(film.getId()));
-        }
-        return film;
     }
 }
