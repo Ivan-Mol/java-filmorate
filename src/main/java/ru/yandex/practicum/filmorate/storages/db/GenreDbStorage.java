@@ -20,18 +20,18 @@ public class GenreDbStorage implements GenreStorage {
             new Genre(rs.getLong("id"), rs.getString("name"));
 
     private final JdbcTemplate jdbcTemplate;
-    private List<Genre> CACHE;
+    private List<Genre> genreList;
 
     private void initCache() {
-        CACHE = jdbcTemplate.query("SELECT * FROM genres", GENRE_MAPPER);
+        genreList = jdbcTemplate.query("SELECT * FROM genres", GENRE_MAPPER);
     }
 
     @Override
     public Genre getGenre(long genreId) {
-        if (CACHE == null){
+        if (genreList == null) {
             initCache();
         }
-        return CACHE.stream()
+        return genreList.stream()
                 .filter(gen -> gen.getId() == genreId)
                 .findAny()
                 .orElse(null);
@@ -39,9 +39,9 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAllGenres() {
-        if (CACHE == null) {
+        if (genreList == null) {
             initCache();
         }
-        return CACHE;
+        return genreList;
     }
 }

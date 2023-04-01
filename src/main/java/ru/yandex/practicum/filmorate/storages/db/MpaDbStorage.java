@@ -20,18 +20,18 @@ public class MpaDbStorage implements MpaStorage {
             new Mpa(rs.getLong("id"), rs.getString("name"));
 
     private final JdbcTemplate jdbcTemplate;
-    private List<Mpa> CACHE;
+    private List<Mpa> mpaList;
 
     private void initCache() {
-        CACHE = jdbcTemplate.query("SELECT * FROM mpa", MPA_MAPPER);
+        mpaList = jdbcTemplate.query("SELECT * FROM mpa", MPA_MAPPER);
     }
 
     @Override
     public Mpa getMpa(long id) {
-        if (CACHE == null){
+        if (mpaList == null) {
             initCache();
         }
-        return CACHE.stream()
+        return mpaList.stream()
                 .filter(mpa -> mpa.getId() == id)
                 .findAny()
                 .orElse(null);
@@ -39,9 +39,9 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public List<Mpa> getAllMpa() {
-        if (CACHE == null){
+        if (mpaList == null) {
             initCache();
         }
-        return CACHE;
+        return mpaList;
     }
 }
