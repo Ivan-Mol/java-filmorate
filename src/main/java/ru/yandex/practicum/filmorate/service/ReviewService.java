@@ -12,36 +12,36 @@ import java.util.List;
 public class ReviewService {
     private final ReviewStorage reviewStorage;
 
-    public Review getReviewById(int reviewId){
+    public Review getReviewById(int reviewId) {
         return reviewStorage.getReviewById(reviewId);
     }
 
-    public List<Review> getAllReviews(){
+    public List<Review> getAllReviews() {
         return reviewStorage.getAllReviews();
     }
 
-    public List<Review> getFilmReviewsSortedByUsefulness(int filmId, int count){
+    public List<Review> getFilmReviewsSortedByUsefulness(int filmId, int count) {
         return reviewStorage.getFilmReviewsSortedByUsefulness(filmId, count);
     }
 
-    public Review addReview(Review review){
+    public Review addReview(Review review) {
         return reviewStorage.addReview(review);
     }
 
-    public void addValueToReview(int reviewId, int userId, boolean isLike){
-        reviewStorage.addLikeOrDislikeToReview(reviewId,userId,isLike);
+    public void addValueToReview(int reviewId, int userId, boolean isLike) {
+        reviewStorage.addLikeOrDislikeToReview(reviewId, userId, isLike);
     }
 
-    public Review updateReview(Review review){
+    public Review updateReview(Review review) {
         return reviewStorage.updateReview(review);
     }
 
-    public void removeReview(int reviewId){
+    public void removeReview(int reviewId) {
         reviewStorage.removeReview(reviewId);
     }
 
-    public void removeValueFromReview(int reviewId, int userId, boolean isLike){
-        reviewStorage.removeLikeOrDislikeFromReview(reviewId,userId,isLike);
+    public void removeValueFromReview(int reviewId, int userId, boolean isLike) {
+        reviewStorage.removeLikeOrDislikeFromReview(reviewId, userId, isLike);
     }
 
 }
