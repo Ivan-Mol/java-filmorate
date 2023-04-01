@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storages.mem.ReviewStorage;
+import ru.yandex.practicum.filmorate.storages.ReviewStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,9 +53,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
         List<Review> listOfReviews = jdbcTemplate.query(sql, new ReviewMapper());
 
-        return listOfReviews.stream().
-                sorted(Comparator.comparing(Review::getUseful).reversed()).
-                collect(Collectors.toList());
+        return listOfReviews.stream()
+                .sorted(Comparator.comparing(Review::getUseful).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -64,10 +64,10 @@ public class ReviewDbStorage implements ReviewStorage {
 
         List<Review> reviewsByFilmId = jdbcTemplate.query(sql,new ReviewMapper(),filmId);
 
-        return reviewsByFilmId.stream().
-                sorted(Comparator.comparing(Review::getUseful).reversed()).
-                limit(count).
-                collect(Collectors.toList());
+        return reviewsByFilmId.stream()
+                .sorted(Comparator.comparing(Review::getUseful).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -146,13 +146,15 @@ public class ReviewDbStorage implements ReviewStorage {
             sql = "SELECT * FROM reviews WHERE review_id = ?";
             review = jdbcTemplate.queryForObject(sql, new ReviewMapper(), reviewId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Ошибка: отзыв с id=%d не найден.", reviewId));}
+            throw new NotFoundException(String.format("Ошибка: отзыв с id=%d не найден.", reviewId));
+        }
 
         if (review != null) {
             sql = "DELETE FROM reviews WHERE review_id = ?";
             jdbcTemplate.update(sql, reviewId);
         } else {
-            throw new RuntimeException("Ошибка при удалении отзыва.");}
+            throw new RuntimeException("Ошибка при удалении отзыва.");
+        }
 
     }
 
