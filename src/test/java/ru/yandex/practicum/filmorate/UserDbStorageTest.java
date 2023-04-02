@@ -112,19 +112,6 @@ class UserDbStorageTest {
         assertTrue(expUser2.getFriends().isEmpty());
     }
 
-    //    @Test
-//    void removeUser(){
-//        User expUser1 = createTestUser1();
-//        Long userId1 = userStorage.create(expUser1).getId();
-//        User expUser2 = createTestUser2();
-//        Long userId2  = userStorage.create(expUser2).getId();
-//
-//        userStorage.addFriend(userId1, userId2);
-//        userStorage.addFriend(userId2, userId1);
-//        assertFalse(userStorage.get(userId2).getFriends().isEmpty());
-//        userStorage.deleteById(userId1);
-//        assertTrue(userStorage.get(userId2).getFriends().isEmpty());
-//    }
     private User createTestUser1() {
         User user = new User();
         user.setEmail("user1@gmail.com");
