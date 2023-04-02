@@ -69,7 +69,12 @@ public class FilmController {
 
     @DeleteMapping("/{filmId}")
     public void deleteFilm(@PathVariable Long filmId) {
-        log.debug("received DELETE /films/{filmId} ", filmId);
+        //log.debug("received DELETE /films/{filmId} ", filmId);
         filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getSortDirectorFilms(@PathVariable("directorId") Long directorId, @RequestParam("sortBy") String sortBy) {
+        return filmService.getSortDirectorFilms(directorId, sortBy);
     }
 }
