@@ -28,7 +28,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Mpa getMpa(long id) {
-        if (CACHE == null){
+        if (CACHE == null) {
             initCache();
         }
         return CACHE.stream().filter(mpa -> mpa.getId() == id).findAny().orElse(null);
@@ -36,7 +36,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public List<Mpa> getAllMpa() {
-        if (CACHE == null){
+        if (CACHE == null) {
             initCache();
         }
         return CACHE;
