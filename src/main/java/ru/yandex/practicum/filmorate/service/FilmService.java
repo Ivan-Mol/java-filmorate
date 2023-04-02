@@ -93,7 +93,8 @@ public class FilmService {
     }
 
     public List<Film> search(String query, String by) {
+
         List<Film> films = filmStorage.search(query, by);
-        return films;
+        return directorService.getFilmsWithDirectors(films);
     }
 }
