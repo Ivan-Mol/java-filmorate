@@ -112,7 +112,7 @@ class UserDbStorageTest {
         assertTrue(expUser2.getFriends().isEmpty());
     }
 
-//    @Test
+    //    @Test
 //    void removeUser(){
 //        User expUser1 = createTestUser1();
 //        Long userId1 = userStorage.create(expUser1).getId();

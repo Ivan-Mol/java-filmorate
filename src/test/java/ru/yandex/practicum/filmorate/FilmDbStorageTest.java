@@ -13,11 +13,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.db.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storages.db.UserDbStorage;
 
-import javax.validation.constraints.AssertFalse;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
