@@ -26,11 +26,4 @@ public class ErrorHandler {
         log.error("Handled Not Found Exception", e);
         return new ErrorResponse(e.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRestException(Exception e) {
-        log.error("Handled Unhandled Exception", e);
-        return new ErrorResponse(e.getMessage());
-    }
 }
