@@ -10,7 +10,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @EqualsAndHashCode
-@Builder
 public class Mpa {
     private long id;
     private String name;
