@@ -14,15 +14,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
-import ru.yandex.practicum.filmorate.storages.GenreStorage;
-import ru.yandex.practicum.filmorate.storages.MpaStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,12 +34,11 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreStorage genreStorage;
-    private final MpaStorage mpaStorage;
 
     @Override
     public List<Film> getAll() {
-        String getAllFilmsQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name FROM FILMS f" +
+        String getAllFilmsQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name " +
+                " FROM FILMS f" +
                 " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
                 " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
@@ -52,7 +47,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(Long id) {
-        String getFilmByIdQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name FROM FILMS f" +
+        String getFilmByIdQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
+                " FROM FILMS f" +
                 " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
                 " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID" +
@@ -69,10 +65,10 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getTopByLikes(int count) {
         String getTopFilmsByLikesQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
                 " FROM (SELECT f.* FROM FILMS f" +
-                "   LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
-                "   GROUP BY f.ID" +
-                "   ORDER BY COUNT(l.USER_ID) DESC" +
-                "   LIMIT " + count + ") f" +
+                " LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                " GROUP BY f.ID" +
+                " ORDER BY COUNT(l.USER_ID) DESC" +
+                " LIMIT " + count + ") f" +
                 " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
                 " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
