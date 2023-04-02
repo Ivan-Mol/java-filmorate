@@ -233,7 +233,7 @@ public class FilmDbStorage implements FilmStorage {
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
         String byDirector = sql + " WHERE LOWER(d.NAME) LIKE LOWER('%" + query + "%')";
         String byTitle = sql + " WHERE LOWER(f.NAME) LIKE LOWER('%" + query + "%')";
-        String byDirectorOrTitle = sql + " WHERE LOWER(d.NAME) LIKE LOWER('%" + query +"%') OR LOWER(f.NAME) LIKE LOWER('%" + query + "%')";
+        String byDirectorOrTitle = sql + " WHERE LOWER(d.NAME) LIKE LOWER('%" + query + "%') OR LOWER(f.NAME) LIKE LOWER('%" + query + "%')";
         switch (by) {
             case "director":
                 return getFilms(byDirector);
