@@ -43,5 +43,4 @@ public class ReviewService {
     public void removeValueFromReview(int reviewId, int userId, boolean isLike) {
         reviewStorage.removeLikeOrDislikeFromReview(reviewId, userId, isLike);
     }
-
 }

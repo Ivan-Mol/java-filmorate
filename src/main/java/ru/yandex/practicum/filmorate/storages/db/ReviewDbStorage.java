@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -25,20 +26,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Primary
-@Component
+@Repository
 @Slf4j
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
+    ReviewMapper reviewMapper = new ReviewMapper();
     @Override
     public Review getReviewById(int reviewId) {
+        log.debug("/getReviewById");
         Review review;
         try {
             String sqlQuery = "SELECT * FROM reviews WHERE review_id = ?";
-            review = jdbcTemplate.queryForObject(sqlQuery, new ReviewMapper(), reviewId);
-
+            review = jdbcTemplate.queryForObject(sqlQuery, reviewMapper, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(
                     String.format("Ошибка при получении: отзыв с id=%d не найден.", reviewId));
@@ -48,11 +48,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public List<Review> getAllReviews() {
-
+        log.debug("/getAllReviews");
         String sql = "SELECT * FROM reviews";
-
-        List<Review> listOfReviews = jdbcTemplate.query(sql, new ReviewMapper());
-
+        List<Review> listOfReviews = jdbcTemplate.query(sql, reviewMapper);
         return listOfReviews.stream()
                 .sorted(Comparator.comparing(Review::getUseful).reversed())
                 .collect(Collectors.toList());
@@ -60,9 +58,10 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public List<Review> getFilmReviewsSortedByUsefulness(int filmId, int count) {
+        log.debug("/getFilmReviewsSortedByUsefulness");
         String sql = "SELECT * FROM reviews WHERE film_id = ?";
 
-        List<Review> reviewsByFilmId = jdbcTemplate.query(sql,new ReviewMapper(),filmId);
+        List<Review> reviewsByFilmId = jdbcTemplate.query(sql,reviewMapper,filmId);
 
         return reviewsByFilmId.stream()
                 .sorted(Comparator.comparing(Review::getUseful).reversed())
@@ -72,6 +71,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review addReview(Review review) {
+        log.debug("/addReview");
         assertFilmExists(review.getFilmId());
         assertUserExists(review.getUserId());
 
@@ -85,7 +85,7 @@ public class ReviewDbStorage implements ReviewStorage {
             PreparedStatement ps = con.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, review.getFilmId());
             ps.setInt(2, review.getUserId());
-            ps.setBoolean(3, review.isPositive());
+            ps.setBoolean(3, review.getIsPositive());
             ps.setString(4, review.getContent());
             return ps;
         }, keyHolder);
@@ -95,18 +95,17 @@ public class ReviewDbStorage implements ReviewStorage {
             review.setReviewId(num.intValue());
         } else throw new RuntimeException("Ошибка: отзыв не был добавлен.");
 
-        return getReviewById(num.intValue());
-
+        return getReviewById(review.getReviewId());
     }
 
     @Override
     public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
+        log.debug("/addLikeOrDislikeToReview");
         assertReviewExists(reviewId);
         assertUserExists(userId);
         try {
             String sql = "INSERT INTO review_like_dislike (review_id, user_id, is_like) VALUES (?, ?, ?)";
             jdbcTemplate.update(sql, reviewId, userId, isLike);
-
         } catch (DuplicateKeyException e) {
             throw new ValidationException("Ошибка при добавлении лайка/дизлайка: лайк/дизлайк уже существует.");
         }
@@ -114,23 +113,24 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review updateReview(Review review) {
+        log.debug("/updateReview");
         String sql;
         Review existingReview;
         int id = review.getReviewId();
         try {
             sql = "SELECT * FROM reviews WHERE review_id = ?";
-            existingReview = jdbcTemplate.queryForObject(sql, new ReviewMapper(), id);
-
+            existingReview = jdbcTemplate.queryForObject(sql, reviewMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Ошибка: отзыв с id=%d не найден.", id));
         }
 
         String sqlQuery = "UPDATE reviews SET is_positive = ?, content = ? WHERE review_id = ?";
         jdbcTemplate.update(sqlQuery,
-                review.isPositive(),
+                review.getIsPositive(),
                 review.getContent(),
                 review.getReviewId()
         );
+
         if (existingReview == null) {
             throw new RuntimeException("Ошибка при обновлении отзыва.");
         }
@@ -140,67 +140,55 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void removeReview(int reviewId) {
-        String sql;
-        Review review;
-        try {
-            sql = "SELECT * FROM reviews WHERE review_id = ?";
-            review = jdbcTemplate.queryForObject(sql, new ReviewMapper(), reviewId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Ошибка: отзыв с id=%d не найден.", reviewId));
-        }
+        log.debug("/removeReview");
+        Review review = getReviewById(reviewId);
 
         if (review != null) {
-            sql = "DELETE FROM reviews WHERE review_id = ?";
+           String sql = "DELETE FROM reviews WHERE review_id = ?";
             jdbcTemplate.update(sql, reviewId);
         } else {
             throw new RuntimeException("Ошибка при удалении отзыва.");
         }
-
     }
 
     @Override
     public void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike) {
+        log.debug("/removeLikeOrDislikeFromReview");
         String sql = "DELETE FROM review_like_dislike WHERE review_id = ? AND user_id = ? AND is_like = ?";
         int affected = jdbcTemplate.update(sql, reviewId, userId, isLike);
-
         if (affected == 0) {
             throw new NotFoundException(String.format("Ошибка: лайк к отзыву с id=%d не найден.", reviewId));
         }
     }
-
-
     // Вспомогательные методы
     private void assertFilmExists(int filmId) {
+        log.debug("/assertFilmExists");
         try {
             String sqlQuery = "SELECT id FROM films WHERE id = ?";
             jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId);
-
         } catch (DataAccessException e) {
             throw new NotFoundException("Ошибка при создании отзыва: фильм не найден.");
         }
     }
-
     private void assertUserExists(int userId) {
+        log.debug("/assertUserExists");
         try {
             String sqlQuery = "SELECT id FROM users WHERE id = ?";
             jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId);
-
         } catch (DataAccessException e) {
             throw new NotFoundException("Ошибка при создании отзыва: пользователь не найден.");
         }
     }
 
     private void assertReviewExists(int reviewId) {
+        log.debug("/assertReviewExists");
         try {
             String sqlQuery = "SELECT review_id FROM reviews WHERE review_id = ?";
             jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId);
-
         } catch (DataAccessException e) {
             throw new NotFoundException("Ошибка при создании отзыва: пользователь не найден.");
         }
     }
-
-
     //Маппер класса Отзыв
     private class ReviewMapper implements RowMapper<Review> {
         @Override
@@ -227,5 +215,4 @@ public class ReviewDbStorage implements ReviewStorage {
             return review;
         }
     }
-
 }
