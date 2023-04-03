@@ -19,7 +19,13 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Primary
@@ -158,32 +164,32 @@ public class FilmDbStorage implements FilmStorage {
         /* SELECT... получение списка фильмов у наиболее схожего по пред-ниям с userID др.юзера
            за минусом фильмов, которые лайкнуты и обоих юзеров */
         String sql = "SELECT l3.film_id AS id, " +
-                            "f.name, " +
-                            "f.description, " +
-                            "f.duration, " +
-                            "f.release_date, " +
-                            "f.mpa_id, " +
-                            "m.name AS mpa_name, " +
-                            "fg.genre_id, " +
-                            "g.name AS genre_name " +
-                    "FROM likes AS l3 " +
-                    "LEFT JOIN films AS f ON f.id = l3.film_id " +
-                    "LEFT JOIN mpa AS m ON m.id = f.mpa_id " +
-                    "LEFT JOIN film_genres AS fg ON fg.film_id = l3.film_id " +
-                    "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
-                    // SELECT... получение наиболее схожего по предпочтениям с userID другого юзера
-                    "WHERE l3.user_id  =    (SELECT l2.user_id AS other_user " +
-                                            "FROM likes AS l " +
-                                            "JOIN likes AS l2 " +
-                                            "ON l2.film_id = l.film_id AND l2.user_id != l.user_id " +
-                                            "WHERE l.user_id = " + userId + " " +
-                                            "GROUP BY other_user " +
-                                            "ORDER BY COUNT(l2.film_id) DESC " +
-                                            "LIMIT 1) " +
-                    // SELECT... получение списка фильмов лайкнутых userID для фильтрации (не включ.)
-                    "AND l3.film_id NOT IN (SELECT l4.film_id " +
-                                            "FROM likes AS l4 " +
-                                            "WHERE l4.user_id = " + userId + ")";
+                "f.name, " +
+                "f.description, " +
+                "f.duration, " +
+                "f.release_date, " +
+                "f.mpa_id, " +
+                "m.name AS mpa_name, " +
+                "fg.genre_id, " +
+                "g.name AS genre_name " +
+                "FROM likes AS l3 " +
+                "LEFT JOIN films AS f ON f.id = l3.film_id " +
+                "LEFT JOIN mpa AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id = l3.film_id " +
+                "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
+                // SELECT... получение наиболее схожего по предпочтениям с userID другого юзера
+                "WHERE l3.user_id  =    (SELECT l2.user_id AS other_user " +
+                "FROM likes AS l " +
+                "JOIN likes AS l2 " +
+                "ON l2.film_id = l.film_id AND l2.user_id != l.user_id " +
+                "WHERE l.user_id = " + userId + " " +
+                "GROUP BY other_user " +
+                "ORDER BY COUNT(l2.film_id) DESC " +
+                "LIMIT 1) " +
+                // SELECT... получение списка фильмов лайкнутых userID для фильтрации (не включ.)
+                "AND l3.film_id NOT IN (SELECT l4.film_id " +
+                "FROM likes AS l4 " +
+                "WHERE l4.user_id = " + userId + ")";
         return getFilms(sql);
     }
 
@@ -220,30 +226,33 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> search(String query, String by) {
-        String sql = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name FROM" +
-                " (SELECT FILMS.* FROM FILMS" +
-                " LEFT JOIN LIKES L on FILMS.ID = L.FILM_ID" +
-                " GROUP BY L.FILM_ID" +
-                " ORDER BY COUNT(L.USER_ID) DESC) AS f" +
-                " LEFT JOIN FILM_DIRECTORS FD on f.ID = FD.FILM_ID" +
-                " LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID" +
-                " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
-                " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
-                " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
-        String byDirector = sql + " WHERE LOWER(d.NAME) LIKE LOWER('%" + query + "%')";
-        String byTitle = sql + " WHERE LOWER(f.NAME) LIKE LOWER('%" + query + "%')";
-        String byDirectorOrTitle = sql + " WHERE LOWER(d.NAME) LIKE LOWER('%" + query + "%') OR LOWER(f.NAME) LIKE LOWER('%" + query + "%')";
-        switch (by) {
-            case "director":
-                return getFilms(byDirector);
-            case "title":
-                return getFilms(byTitle);
-            case "director,title":
-            case "title,director":
-                return getFilms(byDirectorOrTitle);
-            default:
-                throw new ValidationException("This sort type is not supported");
+    public List<Film> search(String query, Set<String> by) {
+        String sql = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
+                " FROM FILMS f" +
+                "    LEFT JOIN (SELECT COUNT(USER_ID) AS likes, FILM_ID" +
+                "        FROM LIKES" +
+                "        GROUP BY FILM_ID) l on f.ID = l.FILM_ID" +
+                "    LEFT JOIN FILM_DIRECTORS FD on f.ID = FD.FILM_ID" +
+                "    LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                "    LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
+                "    LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
+                "    LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID" +
+                " WHERE " + getWhereClause(query, by) +
+                " ORDER BY l.likes DESC;";
+        return getFilms(sql);
+    }
+
+    private String getWhereClause(String query, Set<String> by) {
+        Set<String> lowercaseBy = by.stream().map(String::toLowerCase).collect(Collectors.toSet());
+        Map<String, String> clauseMapper = Map.of(
+                "director", "LOWER(d.NAME) LIKE LOWER('%" + query + "%')",
+                "title", "LOWER(f.NAME) LIKE LOWER('%" + query + "%')"
+        );
+        if (!clauseMapper.keySet().containsAll(lowercaseBy)) {
+            throw new ValidationException("This search type is not supported: " + lowercaseBy);
         }
+        return lowercaseBy.stream()
+                .map(clauseMapper::get)
+                .collect(Collectors.joining(" OR "));
     }
 }

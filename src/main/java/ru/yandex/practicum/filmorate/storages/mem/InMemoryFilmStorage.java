@@ -71,7 +71,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> search(String query, String by) {
+    public List<Film> search(String query, Set<String> by) {
         return Collections.emptyList();
     }
 }
