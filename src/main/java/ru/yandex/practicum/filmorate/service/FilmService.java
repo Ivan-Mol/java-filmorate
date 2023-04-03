@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -80,12 +79,9 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
-        User user = checkUserExists(userId);
-        User friend = checkUserExists(friendId);
-        if (Objects.nonNull(user) && Objects.nonNull(friend)) {
-            return filmStorage.getCommonFilms(userId, friendId);
-        }
-        return null;
+        filmStorage.get(userId);
+        filmStorage.get(friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public List<Film> getSortDirectorFilms(Long directorId, String sort) {

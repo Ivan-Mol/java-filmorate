@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
@@ -20,8 +17,6 @@ import java.util.List;
 @Setter
 @ToString
 @EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
 public class Film {
     private Long id;
     @NotBlank(message = "Name is empty")
