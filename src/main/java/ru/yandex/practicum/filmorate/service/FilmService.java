@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ import java.util.Objects;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final DirectorService directorService;
 
     private static void validate(Film film) {
         if (!film.getReleaseDate().isAfter(LocalDate.of(1895, Month.DECEMBER, 28))) {
@@ -28,18 +30,23 @@ public class FilmService {
     }
 
     public List<Film> findAll() {
-        return filmStorage.getAll();
+        List<Film> films = filmStorage.getAll();
+        return directorService.getFilmsWithDirectors(films);
     }
 
     public Film create(Film film) {
         validate(film);
-        return filmStorage.create(film);
+        filmStorage.create(film);
+        directorService.replaceFilmDirectors(film);
+        return getFilm(film.getId());
     }
 
     public Film update(Film film) {
         validate(film);
         filmStorage.get(film.getId());
-        return filmStorage.update(film);
+        directorService.replaceFilmDirectors(film);
+        filmStorage.update(film);
+        return getFilm(film.getId());
     }
 
     public void addLike(long filmId, long userId) {
@@ -56,12 +63,15 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("Can not be less 1");
         }
-        return filmStorage.getTopByLikes(count);
-
+        List<Film> films = filmStorage.getTopByLikes(count);
+        return directorService.getFilmsWithDirectors(films);
     }
 
     public Film getFilm(long id) {
-        return filmStorage.get(id);
+        List<Film> films = new ArrayList<>();
+        films.add(filmStorage.get(id));
+        List<Film> filmWithDirector = directorService.getFilmsWithDirectors(films);
+        return filmWithDirector.get(0);
     }
 
     public void deleteFilm(Long id) {
@@ -76,6 +86,12 @@ public class FilmService {
             return filmStorage.getCommonFilms(userId, friendId);
         }
         return null;
+    }
+
+    public List<Film> getSortDirectorFilms(Long directorId, String sort) {
+        directorService.get(directorId);
+        List<Film> films = filmStorage.getSortedFilmsByDirector(directorId, sort);
+        return directorService.getFilmsWithDirectors(films);
     }
 
     //throws RuntimeException if User doesn't exist
