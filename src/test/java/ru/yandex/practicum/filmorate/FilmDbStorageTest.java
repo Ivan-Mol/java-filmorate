@@ -9,7 +9,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.db.FilmDbStorage;
 
 import java.time.LocalDate;
@@ -101,14 +100,5 @@ class FilmDbStorageTest {
         Mpa rating = new Mpa(2L, "PG");
         film.setMpa(rating);
         return film;
-    }
-
-    private User createTestUser1() {
-        User user = new User();
-        user.setEmail("user1@gmail.com");
-        user.setLogin("user1");
-        user.setName("user1");
-        user.setBirthday(LocalDate.of(1990, 11, 12));
-        return user;
     }
 }
