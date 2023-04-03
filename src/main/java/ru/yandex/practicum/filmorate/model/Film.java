@@ -36,15 +36,6 @@ public class Film {
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
 
-    public Film(Long id, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-    }
-
     public void addGenre(Genre genre) {
         genres.add(genre);
     }

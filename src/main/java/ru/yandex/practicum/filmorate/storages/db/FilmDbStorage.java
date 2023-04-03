@@ -197,28 +197,18 @@ public class FilmDbStorage implements FilmStorage {
         return getFilms(sql);
     }
 
+    @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        log.debug("/getCommonFilms");
-        String sql = "SELECT f.*, m.name MPA_NAME " +
-                "FROM FILMS f " +
-                "INNER JOIN MPA m ON f.MPA_ID = m.ID " +
-                "INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
-                "INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
-                "WHERE l1.USER_ID = ? AND l2.USER_ID = ? " +
-                "GROUP BY f.ID, m.name " +
-                "ORDER BY COUNT(l1.USER_ID) DESC ";
-
-        return jdbcTemplate.query(sql, FilmDbStorage::makeFilm, userId, friendId);
-    }
-
-    private static Film makeFilm(ResultSet rs, int i) throws SQLException {
-        long id = rs.getLong("ID");
-        String name = rs.getString("NAME");
-        String description = rs.getString("DESCRIPTION");
-        LocalDate releaseDate = rs.getDate("RELEASE_DATE").toLocalDate();
-        int duration = rs.getInt("DURATION");
-        int mpaId = rs.getInt("MPA_ID");
-        String mpaName = rs.getString("MPA_NAME");
-        return new Film(id, name, description, releaseDate, duration, new Mpa(mpaId, mpaName));
+        String sqlQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
+                " FROM (SELECT f.* FROM FILMS f LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                " INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
+                " INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
+                " WHERE l1.USER_ID = " + userId + " AND l2.USER_ID = " + friendId +
+                " GROUP BY f.ID, l.user_id" +
+                " ORDER BY COUNT(l.USER_ID) DESC) f" +
+                " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
+                " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
+                " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
+        return getFilms(sqlQuery);
     }
 }
