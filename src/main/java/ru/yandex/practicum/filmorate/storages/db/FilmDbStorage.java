@@ -193,16 +193,18 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("/getCommonFilms");
+
         String sqlQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
-                "FROM (SELECT f.* FROM FILMS f LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
-                "INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
+                " FROM (SELECT f.* FROM FILMS f LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                " INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
                 "INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
                 "WHERE l1.USER_ID = " + userId + " AND l2.USER_ID = " + friendId +
-                "GROUP BY f.ID, l.user_id" +
-                "ORDER BY COUNT(l.USER_ID) DESC) f" +
-                "LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
-                "LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
-                "LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
+                " GROUP BY f.ID, l.user_id" +
+                " ORDER BY COUNT(l.USER_ID) DESC) f" +
+                " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
+                " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
+                " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
         return getFilms(sqlQuery);
     }
 
