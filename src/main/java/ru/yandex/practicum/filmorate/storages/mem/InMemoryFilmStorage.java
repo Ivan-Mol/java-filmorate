@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -77,5 +78,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getSortedFilmsByDirector(Long directorId, String sort) {
         return null;
+    }
+
+    @Override
+    public List<Film> search(String query, Set<String> by) {
+        return Collections.emptyList();
     }
 }

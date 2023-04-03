@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -97,5 +98,10 @@ public class FilmService {
 
     private Film checkFilmExists(long id) {
         return filmStorage.get(id);
+    }
+
+    public List<Film> search(String query, Set<String> by) {
+        List<Film> films = filmStorage.search(query, by);
+        return directorService.getFilmsWithDirectors(films);
     }
 }

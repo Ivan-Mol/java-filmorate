@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/films")
@@ -84,5 +85,11 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public List<Film> getSortDirectorFilms(@PathVariable("directorId") Long directorId, @RequestParam("sortBy") String sortBy) {
         return filmService.getSortDirectorFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam(required = false, name = "query") String query,
+                             @RequestParam(required = false, name = "by") Set<String> by) {
+        return filmService.search(query, by);
     }
 }

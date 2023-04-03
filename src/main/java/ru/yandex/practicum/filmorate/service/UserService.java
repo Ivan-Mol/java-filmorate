@@ -82,8 +82,8 @@ public class UserService {
     }
 
     public void deleteUserById(Long id) {
-       checkUserExists(id);
-       userStorage.deleteById(id);
+        checkUserExists(id);
+        userStorage.deleteById(id);
     }
 
     //throws RuntimeException if User doesn't exist
