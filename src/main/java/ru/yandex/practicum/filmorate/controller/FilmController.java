@@ -69,8 +69,16 @@ public class FilmController {
 
     @DeleteMapping("/{filmId}")
     public void deleteFilm(@PathVariable Long filmId) {
-        //log.debug("received DELETE /films/{filmId} ", filmId);
+        log.debug("received DELETE /films/{filmId} ", filmId);
         filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam(value = "userId") Long userId,
+                                     @RequestParam(value = "friendId") Long friendId) {
+        log.debug("received GET /films/common for users with ID = {} and ID = {}.", userId,
+                friendId);
+        return filmService.getCommonFilms(userId, friendId);
     }
 
     @GetMapping("/director/{directorId}")

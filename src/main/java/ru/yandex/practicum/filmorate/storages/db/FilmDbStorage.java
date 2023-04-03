@@ -19,7 +19,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 @Primary
@@ -31,7 +35,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
-        String getAllFilmsQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name FROM FILMS f" +
+        String getAllFilmsQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name " +
+                " FROM FILMS f" +
                 " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
                 " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
@@ -40,7 +45,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(Long id) {
-        String getFilmByIdQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name FROM FILMS f" +
+        String getFilmByIdQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
+                " FROM FILMS f" +
                 " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
                 " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID" +
@@ -57,10 +63,10 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getTopByLikes(int count) {
         String getTopFilmsByLikesQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
                 " FROM (SELECT f.* FROM FILMS f" +
-                "   LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
-                "   GROUP BY f.ID" +
-                "   ORDER BY COUNT(l.USER_ID) DESC" +
-                "   LIMIT " + count + ") f" +
+                " LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                " GROUP BY f.ID" +
+                " ORDER BY COUNT(l.USER_ID) DESC" +
+                " LIMIT " + count + ") f" +
                 " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
                 " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
                 " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
@@ -185,6 +191,23 @@ public class FilmDbStorage implements FilmStorage {
                                             "FROM likes AS l4 " +
                                             "WHERE l4.user_id = " + userId + ")";
         return getFilms(sql);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.debug("/getCommonFilms");
+
+        String sqlQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
+                " FROM (SELECT f.* FROM FILMS f LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                " INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
+                "INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
+                "WHERE l1.USER_ID = " + userId + " AND l2.USER_ID = " + friendId +
+                " GROUP BY f.ID, l.user_id" +
+                " ORDER BY COUNT(l.USER_ID) DESC) f" +
+                " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
+                " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
+                " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
+        return getFilms(sqlQuery);
     }
 
     @Override
