@@ -14,17 +14,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
-import ru.yandex.practicum.filmorate.storages.GenreStorage;
-import ru.yandex.practicum.filmorate.storages.MpaStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,8 +32,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreStorage genreStorage;
-    private final MpaStorage mpaStorage;
 
     @Override
     public List<Film> getAll() {
@@ -200,15 +194,15 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         String sqlQuery = "SELECT f.*, m.NAME AS mpa_name, g.ID AS genre_id, g.NAME AS genre_name" +
-                " FROM (SELECT f.* FROM FILMS f LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
-                " INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
-                " INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
-                " WHERE l1.USER_ID = " + userId + " AND l2.USER_ID = " + friendId +
-                " GROUP BY f.ID, l.user_id" +
-                " ORDER BY COUNT(l.USER_ID) DESC) f" +
-                " LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
-                " LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
-                " LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
+                "FROM (SELECT f.* FROM FILMS f LEFT JOIN LIKES l ON f.ID = l.FILM_ID" +
+                "INNER JOIN LIKES l1 ON f.ID = l1.FILM_ID " +
+                "INNER JOIN LIKES l2 ON f.ID = l2.FILM_ID " +
+                "WHERE l1.USER_ID = " + userId + " AND l2.USER_ID = " + friendId +
+                "GROUP BY f.ID, l.user_id" +
+                "ORDER BY COUNT(l.USER_ID) DESC) f" +
+                "LEFT JOIN MPA m ON f.MPA_ID = m.ID" +
+                "LEFT JOIN FILM_GENRES fg ON f.ID = fg.FILM_ID" +
+                "LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID";
         return getFilms(sqlQuery);
     }
 
