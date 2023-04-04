@@ -2,9 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-
 @Getter
 @Setter
 @ToString
