@@ -28,7 +28,7 @@ public class ReviewService {
         return reviewStorage.addReview(review);
     }
 
-    public void addValueToReview(int reviewId, int userId, boolean isLike) {
+    public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
         reviewStorage.addLikeOrDislikeToReview(reviewId, userId, isLike);
     }
 
@@ -40,7 +40,7 @@ public class ReviewService {
         reviewStorage.removeReview(reviewId);
     }
 
-    public void removeValueFromReview(int reviewId, int userId, boolean isLike) {
+    public void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike) {
         reviewStorage.removeLikeOrDislikeFromReview(reviewId, userId, isLike);
     }
 }

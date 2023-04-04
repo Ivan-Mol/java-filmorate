@@ -14,14 +14,14 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class Review {
     private int reviewId;
-    @NotBlank(message = "Содержание отзыва не может быть пустым.")
-    @NotNull(message = "Содержание отзыва не может быть равно null.")
+    @NotBlank(message = "Content can't be empty.")
+    @NotNull(message = "Content can't be null.")
     private  String content;
-    @NotNull(message = "Оценка отзыва не может быть равна null.")
+    @NotNull(message = "Estimate can't be null.")
     private Boolean isPositive;
-    @NotNull(message = "Id фильма не может быть равен null.")
+    @NotNull(message = "Film Id can't be null.")
     private  Integer filmId;
-    @NotNull(message = "Id пользователя не может быть равен null.")
+    @NotNull(message = "User Id can't be null.")
     private Integer userId;
     private int useful;
 }
