@@ -10,20 +10,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storages.ReviewStorage;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Comparator;
+import java.sql.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Primary
 @Repository
@@ -32,13 +25,14 @@ import java.util.stream.Collectors;
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
     ReviewMapper reviewMapper = new ReviewMapper();
+
     @Override
     public Review getReviewById(int reviewId) {
         log.debug("/getReviewById");
         Review review;
         try {
-            String sqlQuery = "SELECT * FROM reviews WHERE review_id = ?";
-            review = jdbcTemplate.queryForObject(sqlQuery, reviewMapper, reviewId);
+            String sql = "SELECT * FROM reviews WHERE review_id = ?";
+            review = jdbcTemplate.queryForObject(sql, reviewMapper, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(
                     String.format("Ошибка при получении: отзыв с id=%d не найден.", reviewId));
@@ -49,24 +43,27 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public List<Review> getAllReviews() {
         log.debug("/getAllReviews");
-        String sql = "SELECT * FROM reviews";
+        String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful "+
+                "FROM REVIEWS r "+
+                "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id "+
+                "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT "+
+                "ORDER BY useful DESC";
         List<Review> listOfReviews = jdbcTemplate.query(sql, reviewMapper);
-        return listOfReviews.stream()
-                .sorted(Comparator.comparing(Review::getUseful).reversed())
-                .collect(Collectors.toList());
+        return  listOfReviews;
     }
 
     @Override
     public List<Review> getFilmReviewsSortedByUsefulness(int filmId, int count) {
         log.debug("/getFilmReviewsSortedByUsefulness");
-        String sql = "SELECT * FROM reviews WHERE film_id = ?";
-
-        List<Review> reviewsByFilmId = jdbcTemplate.query(sql,reviewMapper,filmId);
-
-        return reviewsByFilmId.stream()
-                .sorted(Comparator.comparing(Review::getUseful).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful "+
+                "FROM REVIEWS r "+
+                "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id "+
+                "WHERE r.film_id = ?" +
+                "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT "+
+                "ORDER BY useful DESC "+
+                "LIMIT ?";
+        List<Review> reviewsByFilmId = jdbcTemplate.query(sql,reviewMapper,filmId, count);
+        return reviewsByFilmId;
     }
 
     @Override
@@ -89,8 +86,8 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setString(4, review.getContent());
             return ps;
         }, keyHolder);
-
         num = keyHolder.getKey();
+        log.debug(num.toString());
         if (num != null) {
             review.setReviewId(num.intValue());
         } else throw new RuntimeException("Ошибка: отзыв не был добавлен.");
@@ -103,9 +100,12 @@ public class ReviewDbStorage implements ReviewStorage {
         log.debug("/addLikeOrDislikeToReview");
         assertReviewExists(reviewId);
         assertUserExists(userId);
+        int rate= 1;
+        if(!isLike) rate = -1;
+
         try {
             String sql = "INSERT INTO review_like_dislike (review_id, user_id, is_like) VALUES (?, ?, ?)";
-            jdbcTemplate.update(sql, reviewId, userId, isLike);
+            jdbcTemplate.update(sql, reviewId, userId, rate);
         } catch (DuplicateKeyException e) {
             throw new ValidationException("Ошибка при добавлении лайка/дизлайка: лайк/дизлайк уже существует.");
         }
@@ -128,13 +128,11 @@ public class ReviewDbStorage implements ReviewStorage {
         jdbcTemplate.update(sqlQuery,
                 review.getIsPositive(),
                 review.getContent(),
-                review.getReviewId()
-        );
+                review.getReviewId());
 
         if (existingReview == null) {
             throw new RuntimeException("Ошибка при обновлении отзыва.");
         }
-
         return getReviewById(review.getReviewId());
     }
 
@@ -160,6 +158,7 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new NotFoundException(String.format("Ошибка: лайк к отзыву с id=%d не найден.", reviewId));
         }
     }
+
     // Вспомогательные методы
     private void assertFilmExists(int filmId) {
         log.debug("/assertFilmExists");
@@ -170,6 +169,7 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new NotFoundException("Ошибка при создании отзыва: фильм не найден.");
         }
     }
+
     private void assertUserExists(int userId) {
         log.debug("/assertUserExists");
         try {
@@ -186,32 +186,28 @@ public class ReviewDbStorage implements ReviewStorage {
             String sqlQuery = "SELECT review_id FROM reviews WHERE review_id = ?";
             jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId);
         } catch (DataAccessException e) {
-            throw new NotFoundException("Ошибка при создании отзыва: пользователь не найден.");
+            throw new NotFoundException("Ошибка при создании отзыва: ревью не найдено.");
         }
     }
-    //Маппер класса Отзыв
+
     private class ReviewMapper implements RowMapper<Review> {
         @Override
         public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
             Integer usefulness;
+            ResultSetMetaData meta = rs.getMetaData();
             Review review = new Review(rs.getInt("review_id"),
                     rs.getString("content"),
                     rs.getBoolean("is_positive"),
                     rs.getInt("film_id"),
                     rs.getInt("user_id"),
                     0);
-            int reviewId = review.getReviewId();
 
-            // вычисляем рейтинг путем вычитания дизлайков из лайков.
-            String sqlQuery = "SELECT (SELECT COUNT(review_id) FROM review_like_dislike WHERE is_like = true AND review_id = ?)" +
-                    " - (SELECT COUNT(review_id) FROM review_like_dislike WHERE is_like = false AND review_id = ?)";
-            usefulness = jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId, reviewId);
-
-            if (usefulness != null) {
-                review.setUseful(usefulness);
-
-            } else throw new RuntimeException("Ошибка при расчете рейтинга отзыва.");
-
+            int numCol = meta.getColumnCount();
+            for (int i = 1; i <= numCol; i++) {
+                if(meta.getColumnName(i).equalsIgnoreCase("useful")) {
+                    review.setUseful(rs.getInt("useful"));
+                }
+            }
             return review;
         }
     }

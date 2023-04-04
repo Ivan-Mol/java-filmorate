@@ -1,18 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
 
+import lombok.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
-@AllArgsConstructor
+
+
 @EqualsAndHashCode
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class Review {
     private int reviewId;
     @NotBlank(message = "Содержание отзыва не может быть пустым.")
