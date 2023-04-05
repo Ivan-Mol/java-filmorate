@@ -2,23 +2,31 @@ package ru.yandex.practicum.filmorate.storages.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.sql.Date;
+import java.time.Instant;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 
 @Primary
 @Component
@@ -105,7 +113,6 @@ public class UserDbStorage implements UserStorage {
 
     public void removeFriend(long userId, long friendId) {
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id =?", userId, friendId);
-
     }
 
     @Override
@@ -120,9 +127,35 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    public List<Event> getUserEvents(long userId) {
+        log.debug("/getUserEvents");
+        String sql = "SELECT * FROM events AS e WHERE e.user_id = " + userId + " ORDER BY e.timestamp";
+        return jdbcTemplate.query(sql, rs -> {
+            List<Event> events = new ArrayList<>();
+            while (rs.next()) {
+                Event event = new Event();
+                event.setEventId(rs.getLong("id"));
+                event.setTimestamp(rs.getLong("timestamp"));
+                event.setEventType(EventType.valueOf(rs.getString("event_type")));
+                event.setOperation(OperationType.valueOf(rs.getString("operation")));
+                event.setUserId(rs.getLong("user_id"));
+                event.setEntityId(rs.getLong("entity_id"));
+                events.add(event);
+            }
+            return events;
+        });
+    }
+
+    @Override
     public void deleteById(Long id) {
         String sqlQuery = "DELETE FROM users where id = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
 
+    @Override
+    public void addEvent(EventType eventType, OperationType operation, long userId, long entityId) {
+        log.debug("/addEvent");
+        String sql = "INSERT INTO events (timestamp, event_type, operation, user_id, entity_id) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, Instant.now().toEpochMilli(), eventType.name(), operation.name(), userId, entityId);
+    }
 }

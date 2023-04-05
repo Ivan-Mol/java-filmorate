@@ -2,19 +2,18 @@ package ru.yandex.practicum.filmorate.storages.mem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Component
 @Slf4j
-
 public class InMemoryUserStorage implements UserStorage {
     private static long idCounter = 0;
     private final Map<Long, User> users = new HashMap<>();
@@ -76,6 +75,15 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public List<Event> getUserEvents(long userId) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void deleteById(Long id) {
+    }
+
+    @Override
+    public void addEvent(EventType eventType, OperationType operation, long userId, long entityId) {
     }
 }

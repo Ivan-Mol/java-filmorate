@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
@@ -10,9 +11,14 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.model.EventType.LIKE;
+import static ru.yandex.practicum.filmorate.model.OperationType.ADD;
+import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
 
 @Service
 @Slf4j
@@ -51,11 +57,13 @@ public class FilmService {
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
         userStorage.addLike(filmId, userId);
+        userStorage.addEvent(LIKE, ADD, userId, filmId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkUserExists(userId);
         userStorage.removeLike(filmId, userId);
+        userStorage.addEvent(LIKE, REMOVE, userId, filmId);
     }
 
     public List<Film> getPopular(int count) {

@@ -1,5 +1,8 @@
 package ru.yandex.practicum.filmorate.storages;
 
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -20,6 +23,10 @@ public interface UserStorage {
     void addLike(long filmId, long userId);
 
     void removeLike(long filmId, long userId);
+
+    List<Event> getUserEvents(long userId);
+
+    void addEvent(EventType eventType, OperationType operation, long userId, long entityId);
 
     void deleteById(Long id);
 }
