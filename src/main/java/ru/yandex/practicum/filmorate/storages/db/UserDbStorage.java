@@ -145,6 +145,7 @@ public class UserDbStorage implements UserStorage {
             return events;
         });
     }
+
     @Override
     public void deleteById(Long id) {
         String sqlQuery = "DELETE FROM users where id = ?";
