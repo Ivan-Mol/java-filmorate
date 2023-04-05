@@ -21,5 +21,5 @@ public interface ReviewStorage {
 
     void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike);
 
-    public void assertReviewExists(int reviewId);
+    void assertReviewExists(int reviewId);
 }

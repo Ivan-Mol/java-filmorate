@@ -12,11 +12,14 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storages.ReviewStorage;
-import java.sql.*;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Primary
@@ -35,7 +38,7 @@ public class ReviewDbStorage implements ReviewStorage {
             String sql = "SELECT * FROM reviews WHERE review_id = ?";
             review = jdbcTemplate.queryForObject(sql, reviewMapper, reviewId);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException( e.getMessage() +
+            throw new NotFoundException(e.getMessage() +
                     String.format("GetError: review with id=%d not found.", reviewId));
         }
         return review;
@@ -44,26 +47,26 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public List<Review> getAllReviews() {
         log.debug("/getAllReviews");
-        String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful "+
-                "FROM REVIEWS r "+
-                "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id "+
-                "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT "+
+        String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful " +
+                "FROM REVIEWS r " +
+                "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id " +
+                "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT " +
                 "ORDER BY useful DESC";
         List<Review> listOfReviews = jdbcTemplate.query(sql, reviewMapper);
-        return  listOfReviews;
+        return listOfReviews;
     }
 
     @Override
     public List<Review> getFilmReviewsSortedByUsefulness(int filmId, int count) {
         log.debug("/getFilmReviewsSortedByUsefulness");
-        String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful "+
-                "FROM REVIEWS r "+
-                "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id "+
+        String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful " +
+                "FROM REVIEWS r " +
+                "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id " +
                 "WHERE r.film_id = ?" +
-                "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT "+
-                "ORDER BY useful DESC "+
+                "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT " +
+                "ORDER BY useful DESC " +
                 "LIMIT ?";
-        List<Review> reviewsByFilmId = jdbcTemplate.query(sql,reviewMapper,filmId, count);
+        List<Review> reviewsByFilmId = jdbcTemplate.query(sql, reviewMapper, filmId, count);
         return reviewsByFilmId;
     }
 
@@ -96,8 +99,8 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
         log.debug("/addLikeOrDislikeToReview");
-        int rate= 1;
-        if(!isLike) rate = -1;
+        int rate = 1;
+        if (!isLike) rate = -1;
 
         try {
             String sql = "INSERT INTO review_like_dislike (review_id, user_id, is_like) VALUES (?, ?, ?)";
@@ -139,7 +142,7 @@ public class ReviewDbStorage implements ReviewStorage {
         Review review = getReviewById(reviewId);
 
         if (review != null) {
-           String sql = "DELETE FROM reviews WHERE review_id = ?";
+            String sql = "DELETE FROM reviews WHERE review_id = ?";
             jdbcTemplate.update(sql, reviewId);
         } else {
             throw new RuntimeException("DeleteError review.");
@@ -180,7 +183,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
             int numCol = meta.getColumnCount();
             for (int i = 1; i <= numCol; i++) {
-                if(meta.getColumnName(i).equalsIgnoreCase("useful")) {
+                if (meta.getColumnName(i).equalsIgnoreCase("useful")) {
                     review.setUseful(rs.getInt("useful"));
                 }
             }
