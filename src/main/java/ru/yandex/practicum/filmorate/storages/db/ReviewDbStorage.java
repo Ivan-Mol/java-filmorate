@@ -96,7 +96,6 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
         log.debug("/addLikeOrDislikeToReview");
-        assertReviewExists(reviewId);
         int rate= 1;
         if(!isLike) rate = -1;
 
@@ -157,8 +156,8 @@ public class ReviewDbStorage implements ReviewStorage {
         }
     }
 
-    // Вспомогательные методы
-    private void assertReviewExists(int reviewId) {
+    @Override
+    public void assertReviewExists(int reviewId) {
         log.debug("/assertReviewExists");
         try {
             String sqlQuery = "SELECT review_id FROM reviews WHERE review_id = ?";

@@ -20,4 +20,6 @@ public interface ReviewStorage {
     void removeReview(int reviewId);
 
     void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike);
+
+    public void assertReviewExists(int reviewId);
 }

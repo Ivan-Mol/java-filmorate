@@ -35,6 +35,7 @@ public class ReviewService {
 
     public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
         filmService.checkUserExists(userId);
+        reviewStorage.assertReviewExists(reviewId);
         reviewStorage.addLikeOrDislikeToReview(reviewId, userId, isLike);
     }
 
@@ -49,4 +50,5 @@ public class ReviewService {
     public void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike) {
         reviewStorage.removeLikeOrDislikeFromReview(reviewId, userId, isLike);
     }
+
 }
