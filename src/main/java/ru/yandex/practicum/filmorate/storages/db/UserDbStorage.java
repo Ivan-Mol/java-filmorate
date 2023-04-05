@@ -18,9 +18,9 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.sql.Date;
 import java.time.Instant;
-import java.util.*;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -156,12 +156,5 @@ public class UserDbStorage implements UserStorage {
         log.debug("/addEvent");
         String sql = "INSERT INTO events (timestamp, event_type, operation, user_id, entity_id) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql, Instant.now().toEpochMilli(), eventType.name(), operation.name(), userId, entityId);
-    }
-
-    @Override
-    public void removeUserEvents(long userId) {
-        log.debug("/removeUserEvents");
-        String sql = "DELETE FROM events WHERE user_id = ?";
-        jdbcTemplate.update(sql, userId);
     }
 }
