@@ -63,7 +63,7 @@ public class FilmService {
     }
 
     //throws RuntimeException if User doesn't exist
-    private void checkUserExists(long userId) {
+    protected void checkUserExists(long userId) {
         userStorage.get(userId);
     }
 }

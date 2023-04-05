@@ -10,6 +10,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
+
+    private final FilmService filmService;
+
     private final ReviewStorage reviewStorage;
 
     public Review getReviewById(int reviewId) {
@@ -25,10 +28,13 @@ public class ReviewService {
     }
 
     public Review addReview(Review review) {
+        filmService.getFilm(review.getFilmId());
+        filmService.checkUserExists(review.getUserId());
         return reviewStorage.addReview(review);
     }
 
     public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
+        filmService.checkUserExists(userId);
         reviewStorage.addLikeOrDislikeToReview(reviewId, userId, isLike);
     }
 

@@ -27,8 +27,6 @@ public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
     ReviewMapper reviewMapper = new ReviewMapper();
 
-
-
     @Override
     public Review getReviewById(int reviewId) {
         log.debug("/getReviewById");
@@ -72,9 +70,6 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review addReview(Review review) {
         log.debug("/addReview");
-        assertFilmExists(review.getFilmId());
-        assertUserExists(review.getUserId());
-
         Number num;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO reviews " +
@@ -102,7 +97,6 @@ public class ReviewDbStorage implements ReviewStorage {
     public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
         log.debug("/addLikeOrDislikeToReview");
         assertReviewExists(reviewId);
-        assertUserExists(userId);
         int rate= 1;
         if(!isLike) rate = -1;
 
@@ -164,26 +158,6 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     // Вспомогательные методы
-    private void assertFilmExists(int filmId) {
-        log.debug("/assertFilmExists");
-        try {
-            String sqlQuery = "SELECT id FROM films WHERE id = ?";
-            jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId);
-        } catch (DataAccessException e) {
-            throw new NotFoundException("FilmGetError: film not found." + e.getMessage());
-        }
-    }
-
-    private void assertUserExists(int userId) {
-        log.debug("/assertUserExists");
-        try {
-            String sqlQuery = "SELECT id FROM users WHERE id = ?";
-            jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId);
-        } catch (DataAccessException e) {
-            throw new NotFoundException("UserGetError: user not found." + e.getMessage());
-        }
-    }
-
     private void assertReviewExists(int reviewId) {
         log.debug("/assertReviewExists");
         try {
