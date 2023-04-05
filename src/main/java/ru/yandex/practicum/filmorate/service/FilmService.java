@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static ru.yandex.practicum.filmorate.model.EventType.LIKE;
+import static ru.yandex.practicum.filmorate.model.OperationType.ADD;
+import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -51,11 +55,13 @@ public class FilmService {
     public void addLike(long filmId, long userId) {
         checkUserExists(userId);
         userStorage.addLike(filmId, userId);
+        userStorage.addEvent(LIKE, ADD, userId, filmId);
     }
 
     public void removeLike(long filmId, long userId) {
         checkUserExists(userId);
         userStorage.removeLike(filmId, userId);
+        userStorage.addEvent(LIKE, REMOVE, userId, filmId);
     }
 
     public List<Film> getPopular(int count) {
