@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.util.HashSet;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     private static void validate(User user) {
         if (user.getLogin().contains(" ")) {
@@ -74,9 +77,13 @@ public class UserService {
         return user;
     }
 
-
     public User getUser(Long id) {
         return userStorage.get(id);
+    }
+
+    public void deleteUserById(Long id) {
+        checkUserExists(id);
+        userStorage.deleteById(id);
     }
 
     //throws RuntimeException if User doesn't exist
@@ -84,5 +91,9 @@ public class UserService {
         userStorage.get(userId);
     }
 
-
+    public List<Film> getFilmsRecommendations(long userId) {
+        log.debug("/getFilmsRecommendations");
+        checkUserExists(userId);
+        return filmStorage.getFilmsRecommendations(userId);
+    }
 }
