@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
@@ -92,8 +91,8 @@ public class FilmService {
     }
 
     //throws RuntimeException if User doesn't exist
-    private User checkUserExists(long userId) {
-        return userStorage.get(userId);
+    protected void checkUserExists(long userId) {
+        userStorage.get(userId);
     }
 
     private Film checkFilmExists(long id) {
