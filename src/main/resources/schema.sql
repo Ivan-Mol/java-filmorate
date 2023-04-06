@@ -1,4 +1,5 @@
-DROP ALL OBJECTS DELETE FILES;
+--DROP ALL OBJECTS DELETE FILES;
+DROP TABLE IF EXISTS mpa, films, genres, users, film_genres, likes, friends, reviews, review_like_dislike, directors, film_directors, events CASCADE;
 
 create TABLE IF NOT EXISTS mpa
 (
