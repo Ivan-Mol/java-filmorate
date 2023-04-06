@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.storages;
 
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
