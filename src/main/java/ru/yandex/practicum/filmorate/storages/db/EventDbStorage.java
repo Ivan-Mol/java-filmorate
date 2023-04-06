@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.storages.EventStorage;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,8 @@ public class EventDbStorage implements EventStorage {
 	public void addEvent(Event event) {
 		log.debug("/addEvent");
 		String sql = "INSERT INTO events (event_type, operation, user_id, entity_id) VALUES (?, ?, ?, ?)";
-		jdbcTemplate.update(sql, event.getEventType(), event.getOperation(), event.getUserId(), event.getEntityId());
+		jdbcTemplate.update(
+				sql, event.getEventType().name(), event.getOperation().name(), event.getUserId(), event.getEntityId());
 	}
 
 	@Override
