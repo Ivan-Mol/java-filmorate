@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 @ToString
 @AllArgsConstructor
 public class Review {
+    @NotNull
     private int reviewId;
     @NotBlank(message = "Content can't be empty.")
     @NotNull(message = "Content can't be null.")

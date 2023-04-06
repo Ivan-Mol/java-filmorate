@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storages.ReviewStorage;
 
@@ -28,6 +29,7 @@ public class ReviewService {
     }
 
     public Review addReview(Review review) {
+        validate(review);
         filmService.getFilm(review.getFilmId());
         filmService.checkUserExists(review.getUserId());
         return reviewStorage.addReview(review);
@@ -40,6 +42,7 @@ public class ReviewService {
     }
 
     public Review updateReview(Review review) {
+        validate(review);
         return reviewStorage.updateReview(review);
     }
 
@@ -49,6 +52,12 @@ public class ReviewService {
 
     public void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike) {
         reviewStorage.removeLikeOrDislikeFromReview(reviewId, userId, isLike);
+    }
+
+    private void validate(Review review){
+        if (review.getContent() == null || review.getContent().isEmpty() || review.getContent().length() > 1024) {
+            throw new ValidationException("Review content invalid");
+        }
     }
 
 }
