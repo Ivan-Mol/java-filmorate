@@ -24,9 +24,5 @@ public interface UserStorage {
 
     void removeLike(long filmId, long userId);
 
-    List<Event> getUserEvents(long userId);
-
-    void addEvent(EventType eventType, OperationType operation, long userId, long entityId);
-
     void deleteById(Long id);
 }
