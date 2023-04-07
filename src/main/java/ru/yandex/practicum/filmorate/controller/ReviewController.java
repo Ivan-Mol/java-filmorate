@@ -25,13 +25,13 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable int id) {
+    public Review getReviewById(@PathVariable Long id) {
         log.debug("/getReviewById");
         return reviewService.getReviewById(id);
     }
 
     @GetMapping
-    public List<Review> getAllReviews(@RequestParam(required = false) Integer filmId,
+    public List<Review> getAllReviews(@RequestParam(required = false) Long filmId,
                                       @RequestParam(defaultValue = "10") int count) {
         log.debug("/getAllReviews");
         if (filmId == null) {
@@ -54,35 +54,35 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    public void removeReview(@PathVariable int id) {
+    public void removeReview(@PathVariable Long id) {
         log.debug("/removeReview");
         reviewService.removeReview(id);
         log.debug("Review with id={} was deleted", id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLikeToReview(@PathVariable int id, @PathVariable int userId) {
+    public void addLikeToReview(@PathVariable Long id, @PathVariable Long userId) {
         log.debug("/addLikeToReview");
         reviewService.addLikeOrDislikeToReview(id, userId, true);
         log.debug("Review with id={}: like was adde from user with id={}.", id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
-    public void addDislikeToReview(@PathVariable int id, @PathVariable int userId) {
+    public void addDislikeToReview(@PathVariable Long id, @PathVariable Long userId) {
         log.debug("/addDislikeToReview");
         reviewService.addLikeOrDislikeToReview(id, userId, false);
         log.debug("Review with id={}: dislike was adde from user with id={}.", id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable int id, @PathVariable int userId) {
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         log.debug("/removeLike");
         reviewService.removeLikeOrDislikeFromReview(id, userId, true);
         log.debug("Review with id={}: like was deleted from user with id={}.", id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public void removeDisLike(@PathVariable int id, @PathVariable int userId) {
+    public void removeDisLike(@PathVariable Long id, @PathVariable Long userId) {
         log.debug("/removeDisLike");
         reviewService.removeLikeOrDislikeFromReview(id, userId, false);
         log.debug("Review with id={}: dislike was deleted from user with id={}.", id, userId);

@@ -18,15 +18,15 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class Review {
     @NotNull
-    private int reviewId;
+    private long reviewId;
     @NotBlank(message = "Content can't be empty.")
     @NotNull(message = "Content can't be null.")
     private String content;
     @NotNull(message = "Estimate can't be null.")
     private Boolean isPositive;
     @NotNull(message = "Film Id can't be null.")
-    private Integer filmId;
+    private Long filmId;
     @NotNull(message = "User Id can't be null.")
-    private Integer userId;
+    private Long userId;
     private int useful;
 }

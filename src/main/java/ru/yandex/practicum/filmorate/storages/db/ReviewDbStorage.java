@@ -31,7 +31,7 @@ public class ReviewDbStorage implements ReviewStorage {
     private final ReviewMapper reviewMapper = new ReviewMapper();
 
     @Override
-    public Review getReviewById(int reviewId) {
+    public Review getReviewById(Long reviewId) {
         log.debug("/getReviewById");
         Review review;
         try {
@@ -57,7 +57,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public List<Review> getFilmReviewsSortedByUsefulness(int filmId, int count) {
+    public List<Review> getFilmReviewsSortedByUsefulness(Long filmId, int count) {
         log.debug("/getFilmReviewsSortedByUsefulness");
         String sql = "SELECT r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT, COALESCE(SUM(rld.IS_LIKE),0) AS useful " +
                 "FROM REVIEWS r " +
@@ -73,7 +73,6 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review addReview(Review review) {
         log.debug("/addReview");
-        Number num;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO reviews " +
                 "(film_id, user_id, is_positive, content) " +
@@ -81,23 +80,23 @@ public class ReviewDbStorage implements ReviewStorage {
 
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, review.getFilmId());
-            ps.setInt(2, review.getUserId());
+            ps.setLong(1, review.getFilmId());
+            ps.setLong(2, review.getUserId());
             ps.setBoolean(3, review.getIsPositive());
             ps.setString(4, review.getContent());
             return ps;
         }, keyHolder);
-        num = keyHolder.getKey();
-        log.debug(num.toString());
-        if (num != null) {
-            review.setReviewId(num.intValue());
+        Long id = keyHolder.getKeyAs(Long.class);
+        log.debug("generated id: {}", id);
+        if (id != null) {
+            review.setReviewId(id);
         } else throw new RuntimeException("Error: review was not added.");
 
         return getReviewById(review.getReviewId());
     }
 
     @Override
-    public void addLikeOrDislikeToReview(int reviewId, int userId, boolean isLike) {
+    public void addLikeOrDislikeToReview(Long reviewId, Long userId, boolean isLike) {
         log.debug("/addLikeOrDislikeToReview");
         int rate = 1;
         if (!isLike) rate = -1;
@@ -116,7 +115,7 @@ public class ReviewDbStorage implements ReviewStorage {
         log.debug("/updateReview");
         String sql;
         Review existingReview;
-        int id = review.getReviewId();
+        Long id = review.getReviewId();
         try {
             sql = "SELECT * FROM reviews WHERE review_id = ?";
             existingReview = jdbcTemplate.queryForObject(sql, reviewMapper, id);
@@ -137,7 +136,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void removeReview(int reviewId) {
+    public void removeReview(Long reviewId) {
         log.debug("/removeReview");
         Review review = getReviewById(reviewId);
 
@@ -150,7 +149,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void removeLikeOrDislikeFromReview(int reviewId, int userId, boolean isLike) {
+    public void removeLikeOrDislikeFromReview(Long reviewId, Long userId, boolean isLike) {
         log.debug("/removeLikeOrDislikeFromReview");
         String sql = "DELETE FROM review_like_dislike WHERE review_id = ? AND user_id = ? AND is_like = ?";
         int affected = jdbcTemplate.update(sql, reviewId, userId, isLike);
@@ -160,11 +159,11 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void assertReviewExists(int reviewId) {
+    public void assertReviewExists(Long reviewId) {
         log.debug("/assertReviewExists");
         try {
             String sqlQuery = "SELECT review_id FROM reviews WHERE review_id = ?";
-            jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId);
+            jdbcTemplate.queryForObject(sqlQuery, Long.class, reviewId);
         } catch (DataAccessException e) {
             throw new NotFoundException("ReviewGetError: review not found." + e.getMessage());
         }
@@ -174,11 +173,11 @@ public class ReviewDbStorage implements ReviewStorage {
         @Override
         public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
             ResultSetMetaData meta = rs.getMetaData();
-            Review review = new Review(rs.getInt("review_id"),
+            Review review = new Review(rs.getLong("review_id"),
                     rs.getString("content"),
                     rs.getBoolean("is_positive"),
-                    rs.getInt("film_id"),
-                    rs.getInt("user_id"),
+                    rs.getLong("film_id"),
+                    rs.getLong("user_id"),
                     0);
 
             int numCol = meta.getColumnCount();

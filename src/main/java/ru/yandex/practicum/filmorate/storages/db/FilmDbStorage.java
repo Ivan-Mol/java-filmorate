@@ -2,30 +2,31 @@ package ru.yandex.practicum.filmorate.storages.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.context.annotation.Primary;
-
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-
 import org.springframework.stereotype.Component;
-
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
-import java.sql.*;
 import java.sql.Date;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Primary
@@ -164,12 +165,12 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmsRecommendations(long userId) {
         log.debug("/getFilmsRecommendations");
         String sqlMostSimilarUser = "SELECT l2.user_id " +
-                                    "FROM likes AS l " +
-                                    "JOIN likes AS l2 ON l.film_id  = l2.film_id  AND l2.user_id != l.user_id " +
-                                    "WHERE l.user_id = ? " +
-                                    "GROUP BY l2.user_id " +
-                                    "ORDER BY COUNT(l2.film_id) DESC " +
-                                    "LIMIT 1";
+                "FROM likes AS l " +
+                "JOIN likes AS l2 ON l.film_id  = l2.film_id  AND l2.user_id != l.user_id " +
+                "WHERE l.user_id = ? " +
+                "GROUP BY l2.user_id " +
+                "ORDER BY COUNT(l2.film_id) DESC " +
+                "LIMIT 1";
         Integer similarUserId;
         try {
             similarUserId = jdbcTemplate.queryForObject(sqlMostSimilarUser, Integer.class, userId);
@@ -177,22 +178,22 @@ public class FilmDbStorage implements FilmStorage {
             return Collections.emptyList();
         }
 
-        String sqlRecomFilms =  "SELECT f.ID, " +
-                                        "f.NAME, " +
-                                        "f.DESCRIPTION, " +
-                                        "f.DURATION, " +
-                                        "f.RELEASE_DATE, " +
-                                        "f.MPA_ID, " +
-                                        "m.NAME AS mpa_name, " +
-                                        "fg.GENRE_ID, " +
-                                        "g.NAME AS genre_name " +
-                                "FROM LIKES AS l " +
-                                "LEFT JOIN LIKES AS l2 ON l.FILM_ID = l2.FILM_ID AND l2.USER_ID = " + userId + " " +
-                                "LEFT JOIN FILMS AS f ON l.FILM_ID = f.ID " +
-                                "LEFT JOIN MPA AS m ON m.ID = f.MPA_ID " +
-                                "LEFT JOIN FILM_GENRES AS fg ON fg.FILM_ID = f.ID " +
-                                "LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID " +
-                                "WHERE l.USER_ID = " + similarUserId + " AND l2.USER_ID IS NULL";
+        String sqlRecomFilms = "SELECT f.ID, " +
+                "f.NAME, " +
+                "f.DESCRIPTION, " +
+                "f.DURATION, " +
+                "f.RELEASE_DATE, " +
+                "f.MPA_ID, " +
+                "m.NAME AS mpa_name, " +
+                "fg.GENRE_ID, " +
+                "g.NAME AS genre_name " +
+                "FROM LIKES AS l " +
+                "LEFT JOIN LIKES AS l2 ON l.FILM_ID = l2.FILM_ID AND l2.USER_ID = " + userId + " " +
+                "LEFT JOIN FILMS AS f ON l.FILM_ID = f.ID " +
+                "LEFT JOIN MPA AS m ON m.ID = f.MPA_ID " +
+                "LEFT JOIN FILM_GENRES AS fg ON fg.FILM_ID = f.ID " +
+                "LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID " +
+                "WHERE l.USER_ID = " + similarUserId + " AND l2.USER_ID IS NULL";
         return getFilms(sqlRecomFilms);
     }
 
