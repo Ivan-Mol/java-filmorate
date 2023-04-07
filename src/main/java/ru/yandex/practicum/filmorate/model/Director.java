@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -14,7 +15,8 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode
 @AllArgsConstructor
 public class Director {
-    private Long id;
+    @NotNull
+    private long id;
     @NotBlank
     private String name;
 }
