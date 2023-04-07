@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import ru.yandex.practicum.filmorate.storages.EventStorage;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
@@ -29,6 +30,7 @@ import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
 public class UserService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventStorage eventStorage;
 
     private static void validate(User user) {
         if (user.getLogin().contains(" ")) {
@@ -45,14 +47,14 @@ public class UserService {
         checkUserExists(userID);
         checkUserExists(friendID);
         userStorage.addFriend(userID, friendID);
-        userStorage.addEvent(FRIEND, ADD, userID, friendID);
+        eventStorage.addEvent(new Event(FRIEND, ADD, userID, friendID));
     }
 
     public void removeFriend(long userID, long friendID) {
         checkUserExists(userID);
         checkUserExists(friendID);
         userStorage.removeFriend(userID, friendID);
-        userStorage.addEvent(FRIEND, REMOVE, userID, friendID);
+        eventStorage.addEvent(new Event(FRIEND, REMOVE, userID, friendID));
     }
 
     public List<User> findAll() {
@@ -104,7 +106,7 @@ public class UserService {
     public List<Event> getUserEvents(long userId) {
         log.debug("/getUserEvents");
         checkUserExists(userId);
-        return userStorage.getUserEvents(userId);
+        return eventStorage.getUserEvents(userId);
     }
 
     public List<Film> getFilmsRecommendations(long userId) {
