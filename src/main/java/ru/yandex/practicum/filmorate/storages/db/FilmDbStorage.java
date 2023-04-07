@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -264,7 +265,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private String getWhereClause(String query, Set<String> by) {
-        Set<String> lowercaseBy = by.stream().map(String::toLowerCase).collect(Collectors.toSet());
+        Set<String> lowercaseBy = by.stream().map(s -> s.toLowerCase(Locale.ENGLISH)).collect(Collectors.toSet());
         Map<String, String> clauseMapper = Map.of(
                 "director", "LOWER(d.NAME) LIKE LOWER('%" + query + "%')",
                 "title", "LOWER(f.NAME) LIKE LOWER('%" + query + "%')"
