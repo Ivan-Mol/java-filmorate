@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.storages.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
@@ -14,11 +16,13 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 
 @Primary
 @Component
@@ -105,7 +109,6 @@ public class UserDbStorage implements UserStorage {
 
     public void removeFriend(long userId, long friendId) {
         jdbcTemplate.update("DELETE FROM friends WHERE user_id = ? AND friend_id =?", userId, friendId);
-
     }
 
     @Override
@@ -124,5 +127,4 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "DELETE FROM users where id = ?";
         jdbcTemplate.update(sqlQuery, id);
     }
-
 }

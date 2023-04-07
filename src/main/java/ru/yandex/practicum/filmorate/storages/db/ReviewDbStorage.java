@@ -7,6 +7,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final ReviewMapper reviewMapper = new ReviewMapper();
 
     @Override
     public Review getReviewById(int reviewId) {
@@ -34,7 +36,7 @@ public class ReviewDbStorage implements ReviewStorage {
         Review review;
         try {
             String sql = "SELECT * FROM reviews WHERE review_id = ?";
-            review = jdbcTemplate.queryForObject(sql, this::mapRowToDirector, reviewId);
+            review = jdbcTemplate.queryForObject(sql, reviewMapper, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(e.getMessage() +
                     String.format("GetError: review with id=%d not found.", reviewId));
@@ -50,7 +52,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "LEFT JOIN review_like_dislike rld ON r.review_id = rld.review_id " +
                 "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT " +
                 "ORDER BY useful DESC";
-        List<Review> listOfReviews = jdbcTemplate.query(sql, this::mapRowToDirector);
+        List<Review> listOfReviews = jdbcTemplate.query(sql, reviewMapper);
         return listOfReviews;
     }
 
@@ -64,7 +66,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "GROUP BY r.REVIEW_ID, r.FILM_ID, R.USER_ID, r.IS_POSITIVE, r.CONTENT " +
                 "ORDER BY useful DESC " +
                 "LIMIT ?";
-        List<Review> reviewsByFilmId = jdbcTemplate.query(sql, this::mapRowToDirector, filmId, count);
+        List<Review> reviewsByFilmId = jdbcTemplate.query(sql, reviewMapper, filmId, count);
         return reviewsByFilmId;
     }
 
@@ -117,7 +119,7 @@ public class ReviewDbStorage implements ReviewStorage {
         int id = review.getReviewId();
         try {
             sql = "SELECT * FROM reviews WHERE review_id = ?";
-            existingReview = jdbcTemplate.queryForObject(sql, this::mapRowToDirector, id);
+            existingReview = jdbcTemplate.queryForObject(sql, reviewMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(e.getMessage() + String.format("Error: review with id=%d not found.", id));
         }
@@ -168,21 +170,24 @@ public class ReviewDbStorage implements ReviewStorage {
         }
     }
 
-    private Review mapRowToDirector(ResultSet rs, int rowNum) throws SQLException {
-        ResultSetMetaData meta = rs.getMetaData();
-        Review review = new Review(rs.getInt("review_id"),
-                rs.getString("content"),
-                rs.getBoolean("is_positive"),
-                rs.getInt("film_id"),
-                rs.getInt("user_id"),
-                0);
+    private static class ReviewMapper implements RowMapper<Review> {
+        @Override
+        public Review mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ResultSetMetaData meta = rs.getMetaData();
+            Review review = new Review(rs.getInt("review_id"),
+                    rs.getString("content"),
+                    rs.getBoolean("is_positive"),
+                    rs.getInt("film_id"),
+                    rs.getInt("user_id"),
+                    0);
 
-        int numCol = meta.getColumnCount();
-        for (int i = 1; i <= numCol; i++) {
-            if (meta.getColumnName(i).equalsIgnoreCase("useful")) {
-                review.setUseful(rs.getInt("useful"));
+            int numCol = meta.getColumnCount();
+            for (int i = 1; i <= numCol; i++) {
+                if (meta.getColumnName(i).equalsIgnoreCase("useful")) {
+                    review.setUseful(rs.getInt("useful"));
+                }
             }
+            return review;
         }
-        return review;
     }
 }
