@@ -2,13 +2,11 @@ package ru.yandex.practicum.filmorate.storages.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
@@ -16,7 +14,6 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

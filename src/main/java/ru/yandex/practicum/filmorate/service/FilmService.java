@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -106,8 +104,8 @@ public class FilmService {
         userStorage.get(userId);
     }
 
-    private Film checkFilmExists(long id) {
-        return filmStorage.get(id);
+    private void checkFilmExists(long id) {
+        filmStorage.get(id);
     }
 
     public List<Film> search(String query, Set<String> by) {

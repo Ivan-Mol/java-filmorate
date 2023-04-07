@@ -62,7 +62,7 @@ public class DirectorDbStorage implements DirectorStorage {
             return stmt;
         }, keyHolder);
         if (keyHolder.getKey() != null) {
-            director.setId((Long) keyHolder.getKey());
+            director.setId(keyHolder.getKeyAs(Long.class));
         }
         log.debug("Create director {}", director);
         return director;
