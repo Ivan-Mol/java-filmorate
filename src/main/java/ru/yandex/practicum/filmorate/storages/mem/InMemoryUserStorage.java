@@ -1,23 +1,23 @@
 package ru.yandex.practicum.filmorate.storages.mem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Component
 @Slf4j
-
 public class InMemoryUserStorage implements UserStorage {
     private static long idCounter = 0;
     private final Map<Long, User> users = new HashMap<>();
-
     private final Map<Long, Long> likes = new TreeMap<>();
-
 
     @Override
     public List<User> getAll() {
@@ -72,5 +72,9 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void removeLike(long filmId, long userId) {
         likes.remove(filmId, userId);
+    }
+
+    @Override
+    public void deleteById(Long id) {
     }
 }

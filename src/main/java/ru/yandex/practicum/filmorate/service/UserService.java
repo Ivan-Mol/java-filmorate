@@ -5,7 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storages.EventStorage;
+import ru.yandex.practicum.filmorate.storages.FilmStorage;
 import ru.yandex.practicum.filmorate.storages.UserStorage;
 
 import java.util.HashSet;
@@ -13,11 +17,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.model.EventType.FRIEND;
+import static ru.yandex.practicum.filmorate.model.OperationType.ADD;
+import static ru.yandex.practicum.filmorate.model.OperationType.REMOVE;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final EventStorage eventStorage;
 
     private static void validate(User user) {
         if (user.getLogin().contains(" ")) {
@@ -34,12 +44,14 @@ public class UserService {
         checkUserExists(userID);
         checkUserExists(friendID);
         userStorage.addFriend(userID, friendID);
+        eventStorage.addEvent(new Event(FRIEND, ADD, userID, friendID));
     }
 
     public void removeFriend(long userID, long friendID) {
         checkUserExists(userID);
         checkUserExists(friendID);
         userStorage.removeFriend(userID, friendID);
+        eventStorage.addEvent(new Event(FRIEND, REMOVE, userID, friendID));
     }
 
     public List<User> findAll() {
@@ -74,9 +86,13 @@ public class UserService {
         return user;
     }
 
-
     public User getUser(Long id) {
         return userStorage.get(id);
+    }
+
+    public void deleteUserById(Long id) {
+        checkUserExists(id);
+        userStorage.deleteById(id);
     }
 
     //throws RuntimeException if User doesn't exist
@@ -84,5 +100,15 @@ public class UserService {
         userStorage.get(userId);
     }
 
+    public List<Event> getUserEvents(long userId) {
+        log.debug("/getUserEvents");
+        checkUserExists(userId);
+        return eventStorage.getUserEvents(userId);
+    }
 
+    public List<Film> getFilmsRecommendations(long userId) {
+        log.debug("/getFilmsRecommendations");
+        checkUserExists(userId);
+        return filmStorage.getFilmsRecommendations(userId);
+    }
 }

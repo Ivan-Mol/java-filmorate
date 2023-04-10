@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storages.mem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,8 +8,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storages.FilmStorage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -57,5 +58,30 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getTopByLikes(int count) {
         return null;
+    }
+
+    @Override
+    public void deleteById(Long id) {
+
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendations(long userId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getSortedFilmsByDirector(Long directorId, String sort) {
+        return null;
+    }
+
+    @Override
+    public List<Film> search(String query, Set<String> by) {
+        return Collections.emptyList();
     }
 }
