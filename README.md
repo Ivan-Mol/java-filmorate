@@ -1,8 +1,6 @@
 # Filmorate-Project
 
-Project of social network with rating of films.
-
-This is a backend for a service that will work with movies and user feelings.
+Filmorate is a backend service for working with films and user ratings.
 
 Description
 With this service you can:
@@ -21,8 +19,6 @@ With this service you can:
 - H2
 - JUnit
 
-## DB diagram
+## Database ER
 
-![This is an image](https://github.com/Ivan-Mol/java-filmorate/blob/main/filmorate-database.png?raw=true)
-
-
+<img width="467" alt="scheme" src="https://github.com/Ivan-Mol/java-filmorate/assets/94922468/7b185870-e14c-4325-9a45-47b48caad565">
