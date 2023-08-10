@@ -1,23 +1,24 @@
 # Filmorate-Project
 
-Project of social network with rating of films.
+Filmorate is a backend service for working with films and user ratings.
 
-## DB diagram
+Description
+With this service you can:
+- create and update the movie description;
+- get a list of all movies;
+- receive movies by ID;
+- add or remove a like;
+- create and update a user description;
+- get a list of all users;
+- get user by ID;
+- add or remove user's friends.
 
-![This is an image](https://github.com/Ivan-Mol/java-filmorate/blob/main/filmorate-database.png?raw=true)
+## Technologies Used
+- Spring Boot
+- Spring Data (JDBC)
+- H2
+- JUnit
 
-**Get all users:**
+## Database ER
 
-```SELECT * FROM users;```
-
-**Get user by id**
-
-```SELECT * FROM users WHERE user_id = {id};```
-
-**Get all films:**
-
-```SELECT * FROM films;```
-
-**Get film by id**
-
-```SELECT * FROM films WHERE film_id = {id};``` 
+<img width="467" alt="scheme" src="https://github.com/Ivan-Mol/java-filmorate/assets/94922468/7b185870-e14c-4325-9a45-47b48caad565">
